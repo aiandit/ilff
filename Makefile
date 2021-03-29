@@ -21,11 +21,16 @@ update: wheel-pkg
 
 TESTF ?= test.csv
 
-check:
-	./tests/runtests.sh
+check: check1 check2
 
 check1:
-	python3 reindex.py $(TESTF)
+	./tests/runtests.sh
+
+$(TESTF):
+	yes $$(date) | head -n 150000 > $@
+
+check2: $(TESTF)
+	python3 ilff/reindex.py $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)
 	python3 testgetlns.py $(TESTF)

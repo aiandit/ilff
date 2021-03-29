@@ -18,6 +18,14 @@ pipeline {
                 sh 'make'
             }
         }
+        stage('Test') {
+            environment {
+                PYTHON = 'python3'
+            }
+            steps {
+                sh 'make check'
+            }
+        }
         stage('Deploy') {
             steps {
                 archiveArtifacts artifacts: 'dist/*.tar.gz'
