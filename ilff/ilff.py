@@ -15,9 +15,15 @@ class ILFFFile:
         if append:
             mode = 'a'
         self.file = open(self.fname, mode + '+b')
-        self.lenfilen = fname + '.len'
+        (base, notdir) = os.path.split(self.fname)
+        indexDir = os.path.join(base, '.ilff-index')
+        try:
+            os.mkdir(indexDir)
+        except:
+            pass
+        self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
         self.lenfile = open(self.lenfilen, mode + '+b')
-        self.idxfilen = fname + '.idx'
+        self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
         self.idxfile = open(self.idxfilen, mode + '+b')
         self.nlines = self.get_nlines()
 #        print(self.nlines)

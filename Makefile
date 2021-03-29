@@ -21,7 +21,7 @@ update: wheel-pkg
 
 TESTF ?= test.csv
 
-check: check1 check2
+check: check1 check2 check3
 
 check1:
 	./tests/runtests.sh
@@ -36,3 +36,11 @@ check2: $(TESTF)
 	python3 testgetlns.py $(TESTF)
 	python3 testgetlns2.py $(TESTF)
 	python3 testgetlns3.py $(TESTF)
+
+check3: $(TESTF)
+	-mkdir /tmp/subdir
+	cp $(TESTF) /tmp/subdir
+	python3 ilff/reindex.py /tmp/subdir/$(TESTF)
+	python3 testgetln.py /tmp/subdir/$(TESTF)
+	python3 testgetr.py /tmp/subdir/$(TESTF)
+	rm -rf /tmp/subdir
