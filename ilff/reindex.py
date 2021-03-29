@@ -2,9 +2,11 @@ import ilff
 
 import sys
 
-fname = sys.argv[1]
+def run():
+    fname = sys.argv[1]
+    il = ilff.ILFFFile(fname)
+    il.buildindex()
 
-il = ilff.ILFFFile(fname)
-
-il.buildindex()
+if __name__ == "__main__":
+    run()
 

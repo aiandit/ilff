@@ -186,8 +186,10 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'pcdshow=pclio:main_showpcd',
-            'pcd2txt=pclio:main_savetxt',
+            'ilff-showindex=showindex:run',
+            'ilff-reindex=reindex:run',
+            'ilff-getline=getline:run',
+            'ilff-getlines=getlines:run',
         ],
     },
 
