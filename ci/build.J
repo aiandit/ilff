@@ -23,7 +23,7 @@ pipeline {
                 archiveArtifacts artifacts: 'dist/*.tar.gz'
                 archiveArtifacts artifacts: 'dist/*.whl'
                 sh '''
-scp dist/*.tar.gz dist/*.whl jenkins@fnc-jenkins:/mnt/software-builds/Python/ilff
+scp dist/*.tar.gz dist/*.whl jenkins@fnc-jenkins:/mnt/software/builds/Python/ilff
 '''
             }
         }

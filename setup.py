@@ -35,7 +35,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='pclio',  # Required
+    name='ilff',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -76,7 +76,7 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-#    url='ssh://git@fnc-gitlab.fionec.local:2222/j.willkomm/python-pclio.git',  # Optional
+#    url='ssh://git@fnc-gitlab.fionec.local:2222/j.willkomm/python-ilff.git',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -175,7 +175,7 @@ setup(
     # http://docs.python.org/distutils/setupscript.html#installing-additional-files
     #
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-#    data_files=[('pclio', ['data/sample.pcd'])],  # Optional
+#    data_files=[('ilff', ['data/sample.pcd'])],  # Optional
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
