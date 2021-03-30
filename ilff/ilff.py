@@ -24,7 +24,7 @@ class ILFFFile:
             pass
         self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
-        if not os.path.exists(self.lenfilen) or os.path.exists(self.idxfilen):
+        if not os.path.exists(self.lenfilen) or not os.path.exists(self.idxfilen):
             self.isILFF = False
         self.lenfile = open(self.lenfilen, mode + '+b')
         self.idxfile = open(self.idxfilen, mode + '+b')
