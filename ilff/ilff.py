@@ -168,3 +168,45 @@ class ILFFFile:
             idx = self.readindex(i)
             len = self.readlen(i)
             print('%d: %d - %d' % (i, idx, len))
+
+class ILFFGetLines:
+    ilff = None
+
+    def __init__(self, fname, append=True, encoding='utf8'):
+#        print('*** create: %s, append=%s' % (fname,append,))
+        self.ilff = ILFFFile(fname, append=append, encoding=encoding)
+        if not self.ilff.isILFF:
+            print('Index not found, opening normally')
+            self.ilff = None
+            self.fname = fname
+            self.mode = 'a' if append else 'w'
+            self.encoding = encoding
+
+    def getlines(self, offs, ln):
+        if self.ilff is not None:
+            return self.ilff.getlines(offs, ln)
+        else:
+            return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs:offs+ln]
+
+    def getlinestxt(self, offs, ln):
+        print('getlinestxt')
+        if self.ilff is not None:
+            return self.ilff.getlinestxt(offs, ln)
+        else:
+            print(self.fname, self.mode, self.encoding)
+            ifile = open(self.fname, mode='r', encoding=self.encoding)
+            lines = ifile.read().split('\n')[offs:offs+ln]
+            print('lns', offs, ln, lines)
+            return '\n'.join(lines)
+
+    def getline(self, offs):
+        if self.ilff is not None:
+            return self.ilff.getline(offs, ln)
+        else:
+            return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs]
+
+    def get_nlines(self):
+        if self.ilff is not None:
+            return self.ilff.get_nlines()
+        else:
+            return len(open(self.fname, mode='r', encoding=self.encoding).read().split('\n'))
