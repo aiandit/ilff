@@ -3,19 +3,24 @@ import os
 class ILFFFile:
 
     fname = ''
+    mode = 'r'
     encoding = 'utf8'
     nlines = 0
     isILFF = True
 
-    def __init__(self, fname, append=True, encoding='utf8'):
+    def __init__(self, fname, mode='r', encoding='utf8'):
 #        print('*** create: %s, append=%s' % (fname,append,))
         self.fname = fname
         if encoding is not None:
             self.encoding = encoding
-        mode = 'w'
-        if append:
-            mode = 'a'
-        self.file = open(self.fname, mode + '+b')
+        self.mode = mode
+        if mode == 'r':
+            umode = 'r'
+        if mode == 'w':
+            umode = 'w+'
+        if mode == 'a':
+            umode = 'a+'
+        self.file = open(self.fname, umode + 'b')
         (base, notdir) = os.path.split(self.fname)
         indexDir = os.path.join(base, '.ilff-index')
         try:
@@ -25,10 +30,12 @@ class ILFFFile:
         self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
         if not os.path.exists(self.lenfilen) or not os.path.exists(self.idxfilen):
+            print('One of index files not found')
             self.isILFF = False
-        self.lenfile = open(self.lenfilen, mode + '+b')
-        self.idxfile = open(self.idxfilen, mode + '+b')
-        self.nlines = self.get_nlines()
+        if self.isILFF or self.mode != 'r':
+            self.lenfile = open(self.lenfilen, mode + '+b')
+            self.idxfile = open(self.idxfilen, mode + '+b')
+            self.nlines = self.get_nlines()
 
     def flush(self):
         self.file.flush()
@@ -47,8 +54,10 @@ class ILFFFile:
         idxdata = file.read(4)
         if len(idxdata) != 4:
             if lnnum*4 > file.seek(0, os.SEEK_END):
-                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum*4, file.seek(0, os.SEEK_END)))
-        idx = int(0).from_bytes(idxdata, 'little')
+                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum, file.seek(0, os.SEEK_END)/4))
+            idx = 2**30
+        else:
+            idx = int(0).from_bytes(idxdata, 'little')
         return idx
 
     def readindex(self, lnnum):
@@ -181,14 +190,14 @@ class ILFFFile:
 class ILFFGetLines:
     ilff = None
 
-    def __init__(self, fname, append=True, encoding='utf8'):
+    def __init__(self, fname, mode='r', encoding='utf8'):
 #        print('*** create: %s, append=%s' % (fname,append,))
-        self.ilff = ILFFFile(fname, append=append, encoding=encoding)
+        self.ilff = ILFFFile(fname, mode=mode, encoding=encoding)
         if not self.ilff.isILFF:
             print('Index not found, opening normally: %s' % (fname,))
             self.ilff = None
             self.fname = fname
-            self.mode = 'a' if append else 'w'
+            self.mode = mode
             self.encoding = encoding
 
     def getlines(self, offs, ln):

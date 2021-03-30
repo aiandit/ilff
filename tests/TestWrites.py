@@ -28,19 +28,19 @@ class TestILFFWrites(unittest.TestCase):
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
     def test_01_create(self):
-        ilf = ilff.ILFFFile('test.ilff', append=False, encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.close()
 
     def test_02_append(self):
-        ilf = ilff.ILFFFile('test.ilff', append=False, encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.dumpIndex()
         ilf.close()
 
     def test_03_get1(self):
-        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         l1 = ilf.getline(0)
         print('L1:', l1)
         self.assertTrue(l1 == 'aaa')
@@ -69,13 +69,13 @@ class TestILFFWrites(unittest.TestCase):
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
     def test_01_append(self):
-        ilf = ilff.ILFFFile('test.ilff', append=False, encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.close()
 
     def test_02_get2(self):
-        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
@@ -83,13 +83,13 @@ class TestILFFWrites(unittest.TestCase):
         ilf.close()
 
     def test_03_append(self):
-        ilf = ilff.ILFFFile('test.ilff', append=True, encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='a', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.close()
 
     def test_04_get(self):
-        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         for i in range(6):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i % 3], l == self.lines[i % 3])
