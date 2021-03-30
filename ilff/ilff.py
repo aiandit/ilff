@@ -5,6 +5,7 @@ class ILFFFile:
     fname = ''
     encoding = 'utf8'
     nlines = 0
+    isILFF = True
 
     def __init__(self, fname, append=True, encoding='utf8'):
 #        print('*** create: %s, append=%s' % (fname,append,))
@@ -22,11 +23,12 @@ class ILFFFile:
         except:
             pass
         self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
-        self.lenfile = open(self.lenfilen, mode + '+b')
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
+        if not os.path.exists(self.lenfilen) or os.path.exists(self.idxfilen):
+            self.isILFF = False
+        self.lenfile = open(self.lenfilen, mode + '+b')
         self.idxfile = open(self.idxfilen, mode + '+b')
         self.nlines = self.get_nlines()
-#        print(self.nlines)
 
 
     def close(self):
