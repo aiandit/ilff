@@ -10,7 +10,7 @@ fname = sys.argv[1]
 
 il = ilff.ILFFFile(fname)
 
-start = 111000
+start = 11010
 ln = 2000
 
 t0 = time.time()
