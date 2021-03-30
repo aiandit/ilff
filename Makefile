@@ -26,8 +26,12 @@ check: check1 check2 check3
 check1:
 	./tests/runtests.sh
 
+SHELL = bash
+export LANG = C
+
 $(TESTF):
-	yes $$(date) | head -n 150000 > $@
+	echo -n "" > $@
+	for i in {1..15000}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
 
 check2: $(TESTF)
 	python3 ilff/reindex.py $(TESTF)
