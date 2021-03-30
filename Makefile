@@ -40,6 +40,8 @@ check2: $(TESTF)
 	python3 testgetlns.py $(TESTF)
 	python3 testgetlns2.py $(TESTF)
 	python3 testgetlns3.py $(TESTF)
+	python3 testgetlns4.py $(TESTF)
+	python3 testgetlnsnoilff.py ilff/ilff.py
 
 check3: $(TESTF)
 	-mkdir /tmp/subdir
