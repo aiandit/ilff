@@ -190,6 +190,7 @@ setup(
             'ilff-reindex=ilff.reindex:run',
             'ilff-getline=ilff.getline:run',
             'ilff-getlines=ilff.getlines:run',
+            'ilff-getlinestxt=ilff.getlinestxt:run',
         ],
     },
 
