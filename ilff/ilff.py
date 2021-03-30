@@ -185,7 +185,7 @@ class ILFFGetLines:
 #        print('*** create: %s, append=%s' % (fname,append,))
         self.ilff = ILFFFile(fname, append=append, encoding=encoding)
         if not self.ilff.isILFF:
-            print('Index not found, opening normally')
+            print('Index not found, opening normally: %s' % (fname,))
             self.ilff = None
             self.fname = fname
             self.mode = 'a' if append else 'w'
