@@ -198,14 +198,14 @@ class ILFFGetLines:
             return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs:offs+ln]
 
     def getlinestxt(self, offs, ln):
-        print('getlinestxt')
+#        print('getlinestxt')
         if self.ilff is not None:
             return self.ilff.getlinestxt(offs, ln)
         else:
-            print(self.fname, self.mode, self.encoding)
+#            print(self.fname, self.mode, self.encoding)
             ifile = open(self.fname, mode='r', encoding=self.encoding)
             lines = ifile.read().split('\n')[offs:offs+ln]
-            print('lns', offs, ln, lines)
+#            print('lns', offs, ln, lines)
             return '\n'.join(lines)
 
     def getline(self, offs):
