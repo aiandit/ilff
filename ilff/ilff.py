@@ -41,6 +41,9 @@ class ILFFFile:
             return 0
         file.seek(lnnum*4)
         idxdata = file.read(4)
+        if len(idxdata) != 4:
+            if lnnum*4 > file.seek(0, os.SEEK_END):
+                raise(BaseException('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum*4, file.seek(0, os.SEEK_END))))
         idx = int(0).from_bytes(idxdata, 'little')
         return idx
 
