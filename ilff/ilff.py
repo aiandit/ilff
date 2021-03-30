@@ -127,7 +127,7 @@ class ILFFFile:
         self.file.seek(idx)
         res = []
         for k in range(nlines):
-            len = self.readlen(start+1+k)
+            len = self.readlen(start+k)
             ln = self.file.read(len-1).decode(self.encoding)
             d = self.file.read(1)
             res.append(ln)
