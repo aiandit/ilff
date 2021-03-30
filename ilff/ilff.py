@@ -30,6 +30,10 @@ class ILFFFile:
         self.idxfile = open(self.idxfilen, mode + '+b')
         self.nlines = self.get_nlines()
 
+    def flush(self):
+        self.file.flush()
+        self.lenfile.flush()
+        self.idxfile.flush()
 
     def close(self):
         self.file.close()
