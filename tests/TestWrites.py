@@ -121,11 +121,10 @@ class TestILFFWrites2(unittest.TestCase):
 
     def test_03_get2(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
-        for i in range(6):
+        for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
-            self.assertTrue(i > 2 or l == self.lines[i])
-            self.assertTrue(i <= 2 or l == "")
+            self.assertTrue(l == self.lines[i])
         ilf.close()
 
 
@@ -153,7 +152,7 @@ class TestILFFWrites3(unittest.TestCase):
 
     def test_03_get2(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
-        for i in range(6):
+        for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
             self.assertTrue(i > 2 or l == self.lines[i])
