@@ -30,7 +30,7 @@ class ILFFFile:
         self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
         if not os.path.exists(self.lenfilen) or not os.path.exists(self.idxfilen):
-            print('One of index files not found')
+            # print('One of index files not found')
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
             self.lenfile = open(self.lenfilen, mode + '+b')
@@ -194,7 +194,7 @@ class ILFFGetLines:
 #        print('*** create: %s, append=%s' % (fname,append,))
         self.ilff = ILFFFile(fname, mode=mode, encoding=encoding)
         if not self.ilff.isILFF:
-            print('Index not found, opening normally: %s' % (fname,))
+            # print('Index not found, opening normally: %s' % (fname,))
             self.ilff = None
             self.fname = fname
             self.mode = mode
