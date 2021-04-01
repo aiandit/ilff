@@ -158,8 +158,12 @@ class ILFFFile:
         idxs = self.readindex(start)
         idxe = self.readindex(start+nlines-1)
         len = self.readlen(start+nlines-1)
-        self.file.seek(idxs)
-        ln = self.file.read(idxe - idxs + len - 1)
+        ramount = idxe - idxs + len - 1
+        ln = b''
+        try:
+            ln = self.file.read(ramount)
+        except BaseException as e:
+            print('ilff.getlinestxt: read failed %d-%d: %s' % (idxs, ramount, e))
         return ln.decode(self.encoding)
 
     def tail(self, lnnum):
