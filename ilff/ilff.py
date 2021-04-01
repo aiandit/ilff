@@ -158,6 +158,7 @@ class ILFFFile:
         idxs = self.readindex(start)
         idxe = self.readindex(start+nlines-1)
         len = self.readlen(start+nlines-1)
+        self.file.seek(idxs)
         ramount = idxe - idxs + len - 1
         ln = b''
         try:
