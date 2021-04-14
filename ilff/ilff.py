@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 class ILFFFile:
 
@@ -54,7 +54,7 @@ class ILFFFile:
         idxdata = file.read(4)
         if len(idxdata) != 4:
             if lnnum*4 > file.seek(0, os.SEEK_END):
-                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum, file.seek(0, os.SEEK_END)/4))
+                sys.stderr.write('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?\n' % (lnnum, file.seek(0, os.SEEK_END)/4))
             idx = 2**30
         else:
             idx = int(0).from_bytes(idxdata, 'little')
