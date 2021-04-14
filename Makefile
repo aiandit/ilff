@@ -15,8 +15,7 @@ allclean:
 	git clean -xfd
 
 update: wheel-pkg
-	$(PYTHON) -m pip uninstall -y pclio
-	$(PYTHON) -m pip install $(lastword $(shell ls -l dist/*.whl))
+	$(PYTHON) -m pip install -I $(lastword $(shell ls -l dist/*.whl))
 
 
 TESTF ?= test.csv
