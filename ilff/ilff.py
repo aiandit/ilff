@@ -113,11 +113,11 @@ class ILFFFile:
             if llen > 0:
                 if s[llen-1] != 10:
                     llen += 1
+            if llen == 0:
+                break
             self.idxfile.write(newidx.to_bytes(4, 'little'))
             self.lenfile.write(llen.to_bytes(4, 'little'))
             newidx = newidx + llen
-            if llen == 0:
-                break
         self.idxfile.flush()
         self.lenfile.flush()
 #        print('Index rewritten')
