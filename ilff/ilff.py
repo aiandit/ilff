@@ -37,6 +37,12 @@ class ILFFFile:
             self.idxfile = open(self.idxfilen, mode + '+b')
             self.nlines = self.get_nlines()
 
+    def remove(self):
+        self.close()
+        os.remove(self.fname)
+        os.remove(self.lenfilen)
+        os.remove(self.idxfilen)
+
     def flush(self):
         self.file.flush()
         self.lenfile.flush()
