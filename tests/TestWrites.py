@@ -160,5 +160,55 @@ class TestILFFWrites3(unittest.TestCase):
         ilf.close()
 
 
+class TestILFFWrites3(unittest.TestCase):
+
+    lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
+
+    def test_01_write(self):
+        of = open('test.ilff', 'w')
+        of.write('\n'.join(self.lines))
+        of.close()
+
+    def test_01a_buildindex(self):
+        ilf = ilff.ILFFFile('test.ilff')
+        ilf.buildindex()
+        ilf.close()
+
+    def test_02_get(self):
+        ilf = ilff.ILFFFile('test.ilff')
+        for i in range(3):
+            l = ilf.getline(i)
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
+            self.assertTrue(l == self.lines[i])
+        ilf.close()
+
+    def test_03_erase(self):
+        ilf = ilff.ILFFFile('test.ilff', mode="r+")
+        ilf.eraseLine(1)
+        ilf.close()
+
+    def test_03_get2(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        for i in range(3):
+            l = ilf.getline(i)
+            print('L:', i, '"%s"' % l)
+            self.assertTrue(i == 1 or l == self.lines[i])
+            self.assertTrue(i != 1 or l.strip() == "")
+        ilf.close()
+
+    def test_04_compact(self):
+        ilf = ilff.ILFFFile('test.ilff', mode="r+")
+        ilf.compact()
+        ilf.close()
+
+    def test_04_get2(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        for i in range(2):
+            l = ilf.getline(i)
+            print('L:', i, '"%s"' % l)
+            self.assertTrue(i != 0 or l == self.lines[0])
+            self.assertTrue(i != 1 or l == self.lines[2])
+        ilf.close()
+      
 if __name__ == '__main__':
     unittest.main()

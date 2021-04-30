@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, shutil
 
 class ILFFFile:
 
@@ -16,11 +16,15 @@ class ILFFFile:
         self.mode = mode
         if mode == 'r':
             umode = 'r'
-        if mode == 'w':
+        elif mode == 'r+':
+            umode = 'r+'
+        elif mode == 'w' or mode == 'w+':
             umode = 'w+'
-        if mode == 'a':
+        elif mode == 'a' or mode == 'a+':
             umode = 'a+'
-        self.file = open(self.fname, umode + 'b')
+        umode += 'b'
+#        print('open %s with mode %s' %(self.fname, umode))
+        self.file = open(self.fname, umode)
         (base, notdir) = os.path.split(self.fname)
         indexDir = os.path.join(base, '.ilff-index')
         try:
@@ -33,8 +37,9 @@ class ILFFFile:
             # print('One of index files not found')
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
-            self.lenfile = open(self.lenfilen, mode + '+b')
-            self.idxfile = open(self.idxfilen, mode + '+b')
+            imode = mode + ('+b' if '+' not in mode else 'b')
+            self.lenfile = open(self.lenfilen, imode)
+            self.idxfile = open(self.idxfilen, imode)
             self.nlines = self.get_nlines()
 
     def remove(self):
@@ -131,10 +136,25 @@ class ILFFFile:
     def fromfile(self, infile):
         while True:
             s = infile.readline()
-            if len(s) > 0:
+            if len(s) > 0 and len(s.strip()) > 0:
                 self.appendLine(s)
             else:
-                break
+                if len(s) > 0:
+                    continue
+                else:
+                    break
+
+    def truncate(self):
+        self.file.truncate()
+        self.lenfile.truncate()
+        self.idxfile.truncate()
+        self.nlines = 0
+
+    def compact(self):
+        self.flush()
+        shutil.copy(self.fname, self.fname + '.bak')
+        self.truncate()
+        self.fromfile(open(self.fname + '.bak', 'r', encoding=self.encoding))
 
     def getline(self, lnnum):
         idx = self.readindex(lnnum)
@@ -197,6 +217,27 @@ class ILFFFile:
             idx = self.readindex(i)
             len = self.readlen(i)
             print('%d: %d - %d' % (i, idx, len))
+
+    def eraseLine(self, ind, repl=""):
+        #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
+        idx = self.readindex(ind)
+        ln = self.readlen(ind)
+        if ln < 0 or ln > 1e5:
+            print('cannot erase line %d of %s (ln %d)' % (ind, self.fname, ln))
+            return
+        print('erase line %d of %s (ln %d)' % (ind, self.fname, ln))
+        newidx = idx + ln
+        self.file.seek(idx)
+        n = ln - len(repl) -1
+        if n < 0:
+            print('cannot erase line %d of %s (ln %d)' % (ind, self.fname, n))
+            return
+        white = ' ' * (n)
+        bts = (repl + white).encode(self.encoding)
+        print('erase line %d of %s (ln %d), write "%s" at offs %d' % (
+            ind, self.fname, ln, bts, self.file.tell()))
+        self.file.write(bts[0:ln])
+        self.file.flush()
 
 class ILFFGetLines:
     ilff = None
