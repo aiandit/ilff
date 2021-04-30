@@ -85,7 +85,7 @@ class ILFFFile:
             txt = txt[0:llen-1]
         if '\n' in txt:
             print('This is not a line')
-            assert(false)
+            assert(False)
         idx = self.readindex(self.nlines-1)
         ln = self.readlen(self.nlines-1)
         newidx = idx + ln
