@@ -188,6 +188,7 @@ setup(
         'console_scripts': [
             'ilff-showindex=ilff.showindex:run',
             'ilff-reindex=ilff.reindex:run',
+            'ilff-compact=ilff.compact:run',
             'ilff-getline=ilff.getline:run',
             'ilff-getlines=ilff.getlines:run',
             'ilff-getlinestxt=ilff.getlinestxt:run',

@@ -133,10 +133,10 @@ class ILFFFile:
         self.lenfile.flush()
 #        print('Index rewritten')
 
-    def fromfile(self, infile):
+    def fromfile(self, infile, empty=''):
         while True:
             s = infile.readline()
-            if len(s) > 0 and len(s.strip()) > 0:
+            if len(s) > 0 and s.strip() != empty:
                 self.appendLine(s)
             else:
                 if len(s) > 0:
@@ -150,11 +150,11 @@ class ILFFFile:
         self.idxfile.truncate()
         self.nlines = 0
 
-    def compact(self):
+    def compact(self, empty=''):
         self.flush()
         shutil.copy(self.fname, self.fname + '.bak')
         self.truncate()
-        self.fromfile(open(self.fname + '.bak', 'r', encoding=self.encoding))
+        self.fromfile(open(self.fname + '.bak', 'r', encoding=self.encoding), empty=empty)
 
     def getline(self, lnnum):
         idx = self.readindex(lnnum)
