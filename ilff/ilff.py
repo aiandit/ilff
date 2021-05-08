@@ -181,6 +181,8 @@ class ILFFFile:
         return [ self.getline(start+ln) for ln in range(nlines) ]
 
     def getlinestxt(self, start, nlines):
+        if nlines <= 0:
+            return ''
         idxs = self.readindex(start)
         idxe = self.readindex(start+nlines-1)
         len = self.readlen(start+nlines-1)
