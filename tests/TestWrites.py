@@ -101,18 +101,20 @@ class TestILFFWrites2(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
+    fname = 'testw2.ilff'
+
     def test_01_write(self):
-        of = open('test.ilff', 'w')
+        of = open(self.fname, 'w')
         of.write('\n'.join(self.lines) + '\n')
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.ILFFFile('test.ilff', 'a+')
+        ilf = ilff.ILFFFile(self.fname, 'a+')
         ilf.buildindex()
         ilf.close()
 
     def test_02_get(self):
-        ilf = ilff.ILFFFile('test.ilff')
+        ilf = ilff.ILFFFile(self.fname)
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
@@ -120,7 +122,7 @@ class TestILFFWrites2(unittest.TestCase):
         ilf.close()
 
     def test_03_get2(self):
-        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile(self.fname, encoding='utf8')
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
