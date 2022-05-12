@@ -107,7 +107,7 @@ class TestILFFWrites2(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.ILFFFile('test.ilff')
+        ilf = ilff.ILFFFile('test.ilff', 'a+')
         ilf.buildindex()
         ilf.close()
 
@@ -138,7 +138,7 @@ class TestILFFWrites3(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.ILFFFile('test.ilff')
+        ilf = ilff.ILFFFile('test.ilff', 'a+')
         ilf.buildindex()
         ilf.close()
 
