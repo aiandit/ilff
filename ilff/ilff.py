@@ -33,8 +33,8 @@ class ILFFFile:
             # print('One of index files not found')
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
-            self.lenfile = open(self.lenfilen, mode + '+b')
-            self.idxfile = open(self.idxfilen, mode + '+b')
+            self.lenfile = open(self.lenfilen, umode + 'b')
+            self.idxfile = open(self.idxfilen, umode + 'b')
             self.nlines = self.get_nlines()
 
     def flush(self):
