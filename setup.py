@@ -48,7 +48,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='Python modules for Point Cloud Library (PCL) file I/O',  # Optional
+    description='Python module for index line file format (ILFF)',  # Optional
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -84,7 +84,7 @@ setup(
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='j-willkomm@fionec.de',  # Optional
+    author_email='johannes@johannes-willkomm.de',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -120,7 +120,7 @@ setup(
     # Note that this is a list of additional keywords, separated
     # by commas, to be used to assist searching for the distribution in a
     # larger catalog.
-    keywords='matlab, MAT file, I/O',  # Optional
+    keywords='text file, line, index',  # Optional
 
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
