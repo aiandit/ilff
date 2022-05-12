@@ -36,6 +36,8 @@ class ILFFFile:
             self.lenfile = open(self.lenfilen, umode + 'b')
             self.idxfile = open(self.idxfilen, umode + 'b')
             self.nlines = self.get_nlines()
+            self.idx = self.readindex(self.nlines-1)
+            self.ln = self.readlen(self.nlines-1)
 
     def flush(self):
         self.file.flush()
@@ -83,9 +85,7 @@ class ILFFFile:
         if '\n' in txt:
             print('This is not a line')
             assert(false)
-        idx = self.readindex(self.nlines-1)
-        ln = self.readlen(self.nlines-1)
-        newidx = idx + ln
+        newidx = self.idx + self.ln
         self.file.seek(newidx)
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         txtdata = txt.encode(self.encoding)
@@ -93,6 +93,8 @@ class ILFFFile:
         # print('*** al %d: %d,%d,%d' % (self.nlines,len(txt),newidx,llen))
         self.idxfile.write(newidx.to_bytes(4, 'little'))
         self.lenfile.write(llen.to_bytes(4, 'little'))
+        self.idx = newidx
+        self.ln = llen
         #        self.dumpIndex()
         self.file.write((txtdata + b'\n'))
         self.nlines += 1
