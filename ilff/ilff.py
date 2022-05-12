@@ -72,6 +72,9 @@ class ILFFFile:
             print('Error!')
         return int(fsz/4)
 
+    def write(self, txt):
+        self.appendLine(txt)
+
     def appendLine(self, txt):
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         llen = len(txt)
