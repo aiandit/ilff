@@ -16,11 +16,11 @@ class ILFFFile:
         self.mode = mode
         if mode == 'r':
             umode = 'r'
-        if mode == 'w':
+        if mode == 'w' or mode == 'w+':
             umode = 'w+'
-        if mode == 'a':
+        if mode == 'a' or  mode == 'a+':
             umode = 'a+'
-        self.file = open(self.fname, umode + 'b')
+        self.file = open(self.fname, mode + 'b')
         (base, notdir) = os.path.split(self.fname)
         indexDir = os.path.join(base, '.ilff-index')
         try:
