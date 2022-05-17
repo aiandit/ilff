@@ -27,31 +27,31 @@ class ILFFFile:
             os.mkdir(indexDir)
         except:
             pass
-        self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
+#        self.lenfilen = os.path.join(base, '.ilff-index', notdir + '.len')
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
-        if not os.path.exists(self.lenfilen) or not os.path.exists(self.idxfilen):
+        if not os.path.exists(self.idxfilen):
             # print('One of index files not found')
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
-            self.lenfile = open(self.lenfilen, umode + 'b')
+#            self.lenfile = open(self.lenfilen, umode + 'b')
             self.idxfile = open(self.idxfilen, umode + 'b')
             self.nlines = self.get_nlines()
-            self.idx = self.readindex(self.nlines-1)
-            self.ln = self.readlen(self.nlines-1)
+            self.idx = self.readindex(self.nlines-1)[1]
+#            self.ln = self.readlen(self.nlines-1)
 
     def flush(self):
         self.file.flush()
-        self.lenfile.flush()
+#        self.lenfile.flush()
         self.idxfile.flush()
 
     def close(self):
         self.file.close()
-        self.lenfile.close()
+#        self.lenfile.close()
         self.idxfile.close()
 
     def readint(self, file, lnnum):
         if lnnum < 0:
-            return 0
+            return (0, 0)
         file.seek(lnnum*4)
         idxdata = file.read(4)
         if len(idxdata) != 4:
@@ -60,13 +60,20 @@ class ILFFFile:
             idx = 2**30
         else:
             idx = int(0).from_bytes(idxdata, 'little')
-        return idx
+        idxdata = file.read(4)
+        if len(idxdata) != 4:
+            if lnnum*4 > file.seek(0, os.SEEK_END):
+                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum, file.seek(0, os.SEEK_END)/4))
+            idx2 = 2**30
+        else:
+            idx2 = int(0).from_bytes(idxdata, 'little')
+        return (idx, idx2)
 
     def readindex(self, lnnum):
         return self.readint(self.idxfile, lnnum)
 
-    def readlen(self, lnnum):
-        return self.readint(self.lenfile, lnnum)
+#    def readlen(self, lnnum):
+#        return self.readint(self.lenfile, lnnum)
 
     def get_nlines(self):
         fsz = os.stat(self.idxfilen).st_size
@@ -85,16 +92,16 @@ class ILFFFile:
         if '\n' in txt:
             print('This is not a line')
             assert(false)
-        newidx = self.idx + self.ln
-        self.file.seek(newidx)
+        #self.file.seek(newidx)
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         txtdata = txt.encode(self.encoding)
         llen = len(txtdata)+1
+        newidx = self.idx + llen
         # print('*** al %d: %d,%d,%d' % (self.nlines,len(txt),newidx,llen))
         self.idxfile.write(newidx.to_bytes(4, 'little'))
-        self.lenfile.write(llen.to_bytes(4, 'little'))
+#        self.lenfile.write(llen.to_bytes(4, 'little'))
         self.idx = newidx
-        self.ln = llen
+#        self.ln = llen
         #        self.dumpIndex()
         self.file.write((txtdata + b'\n'))
         self.nlines += 1
@@ -107,9 +114,9 @@ class ILFFFile:
 
     def buildindex(self):
         self.idxfile.seek(0)
-        self.lenfile.seek(0)
+#        self.lenfile.seek(0)
         self.idxfile.truncate()
-        self.lenfile.truncate()
+#        self.lenfile.truncate()
         self.file.seek(0)
         newidx = 0
         while True:
@@ -119,12 +126,12 @@ class ILFFFile:
                 if s[llen-1] != 10:
                     llen += 1
             self.idxfile.write(newidx.to_bytes(4, 'little'))
-            self.lenfile.write(llen.to_bytes(4, 'little'))
+#            self.lenfile.write(llen.to_bytes(4, 'little'))
             newidx = newidx + llen
             if llen == 0:
                 break
         self.idxfile.flush()
-        self.lenfile.flush()
+#        self.lenfile.flush()
 #        print('Index rewritten')
 
     def fromfile(self, infile):
@@ -136,9 +143,9 @@ class ILFFFile:
                 break
 
     def getline(self, lnnum):
-        idx = self.readindex(lnnum)
-        len = self.readlen(lnnum)
-#        print('*** gl: %d,%d,%d' % (lnnum,idx,len))
+        (idx, idx2) = self.readindex(lnnum)
+        len = idx2 - idx
+        print('*** gl: %d,%d,%d,%d' % (lnnum,idx,idx2,len))
         if len == 0:
             return ""
         self.file.seek(idx)
@@ -146,11 +153,13 @@ class ILFFFile:
         return ln.decode(self.encoding)
 
     def getlines(self, start, nlines):
-        idx = self.readindex(start)
+        (idx, idx2) = self.readindex(start)
+        len = idx2 - idx
         self.file.seek(idx)
         res = []
         for k in range(nlines):
-            len = self.readlen(start+k)
+            (idx, idx2) = self.readindex(start + k)
+            len = idx2 - idx
             ln = self.file.read(len-1).decode(self.encoding)
             d = self.file.read(1)
             res.append(ln)
@@ -160,11 +169,10 @@ class ILFFFile:
         return [ self.getline(start+ln) for ln in range(nlines) ]
 
     def getlinestxt(self, start, nlines):
-        idxs = self.readindex(start)
-        idxe = self.readindex(start+nlines-1)
-        len = self.readlen(start+nlines-1)
+        (idxs, idxs2) = self.readindex(start)
+        (idxe, idxe2) = self.readindex(start+nlines-1)
         self.file.seek(idxs)
-        ramount = idxe - idxs + len - 1
+        ramount = idxe2 - idxs - 1
         ln = b''
         try:
             ln = self.file.read(ramount)
@@ -176,7 +184,7 @@ class ILFFFile:
         if lnnum > 0:
             lnnum -= 1
         self.idxfile.seek(lnnum*4)
-        self.lenfile.seek(lnnum*4)
+#        self.lenfile.seek(lnnum*4)
         idx = readindex()
         len = readlen()
         self.file.seek(idx)
@@ -186,7 +194,7 @@ class ILFFFile:
     def getIndex(self):
         for i in range(3):
             self.idxfile.seek(i*4)
-            self.lenfile.seek(i*4)
+#            self.lenfile.seek(i*4)
             idx = readindex()
             len = readlen()
             print('%d: %d - %d' % (i, idx, len))
