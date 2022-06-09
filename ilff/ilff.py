@@ -7,6 +7,7 @@ class ILFFFile:
     encoding = 'utf8'
     nlines = 0
     isILFF = True
+    indexBytes = 8
 
     def __init__(self, fname, mode='r', encoding='utf8'):
 #        print('*** create: %s, append=%s' % (fname,append,))
@@ -52,11 +53,12 @@ class ILFFFile:
     def readint(self, file, lnnum):
         if lnnum < 0:
             return 0
-        file.seek(lnnum*4)
-        idxdata = file.read(4)
-        if len(idxdata) != 4:
-            if lnnum*4 > file.seek(0, os.SEEK_END):
-                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum, file.seek(0, os.SEEK_END)/4))
+        file.seek(lnnum*self.indexBytes)
+        idxdata = file.read(self.indexBytes)
+        if len(idxdata) != self.indexBytes:
+            if lnnum*self.indexBytes > file.seek(0, os.SEEK_END):
+                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
+                      (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
             idx = 2**30
         else:
             idx = int(0).from_bytes(idxdata, 'little')
@@ -70,9 +72,9 @@ class ILFFFile:
 
     def get_nlines(self):
         fsz = os.stat(self.idxfilen).st_size
-        if fsz % 4 != 0:
+        if fsz % self.indexBytes != 0:
             print('Error!')
-        return int(fsz/4)
+        return int(fsz/self.indexBytes)
 
     def write(self, txt):
         self.appendLine(txt)
@@ -91,8 +93,8 @@ class ILFFFile:
         txtdata = txt.encode(self.encoding)
         llen = len(txtdata)+1
         # print('*** al %d: %d,%d,%d' % (self.nlines,len(txt),newidx,llen))
-        self.idxfile.write(newidx.to_bytes(4, 'little'))
-        self.lenfile.write(llen.to_bytes(4, 'little'))
+        self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
+        self.lenfile.write(llen.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
         self.ln = llen
         #        self.dumpIndex()
@@ -118,8 +120,8 @@ class ILFFFile:
             if llen > 0:
                 if s[llen-1] != 10:
                     llen += 1
-            self.idxfile.write(newidx.to_bytes(4, 'little'))
-            self.lenfile.write(llen.to_bytes(4, 'little'))
+            self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
+            self.lenfile.write(llen.to_bytes(self.indexBytes, 'little'))
             newidx = newidx + llen
             if llen == 0:
                 break
@@ -175,8 +177,8 @@ class ILFFFile:
     def tail(self, lnnum):
         if lnnum > 0:
             lnnum -= 1
-        self.idxfile.seek(lnnum*4)
-        self.lenfile.seek(lnnum*4)
+        self.idxfile.seek(lnnum*self.indexBytes)
+        self.lenfile.seek(lnnum*self.indexBytes)
         idx = readindex()
         len = readlen()
         self.file.seek(idx)
@@ -185,8 +187,8 @@ class ILFFFile:
 
     def getIndex(self):
         for i in range(3):
-            self.idxfile.seek(i*4)
-            self.lenfile.seek(i*4)
+            self.idxfile.seek(i*self.indexBytes)
+            self.lenfile.seek(i*self.indexBytes)
             idx = readindex()
             len = readlen()
             print('%d: %d - %d' % (i, idx, len))
