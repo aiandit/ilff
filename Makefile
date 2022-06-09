@@ -38,6 +38,7 @@ $(TESTF):
 	for i in {1..15000}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
 
 check2: $(TESTF)
+	python3 testilff.py
 	python3 ilff/reindex.py $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)
