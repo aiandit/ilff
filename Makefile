@@ -14,9 +14,13 @@ clean:
 allclean:
 	git clean -xfd
 
-update: wheel-pkg
+uninstall:
 	$(PYTHON) -m pip uninstall -y ilff
+
+install:
 	$(PYTHON) -m pip install $(lastword $(shell ls -l dist/*.whl))
+
+update: wheel-pkg uninstall install
 
 
 TESTF ?= test.csv
