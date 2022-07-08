@@ -9,7 +9,7 @@ wheel-pkg:
 	$(PYTHON) setup.py bdist_wheel
 
 clean:
-	git clean -xfd --exclude dist
+	! test -d .git || git clean -xfd --exclude dist
 
 allclean:
 	git clean -xfd
