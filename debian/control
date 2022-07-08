@@ -1,0 +1,19 @@
+Source: ilff
+Section: misc
+Priority: optional
+Maintainer: Johannes Willkomm <j.willkomm@fionec.de>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-wheel
+Standards-Version: 4.5.1
+Homepage: https://ai-and-it.de/
+Rules-Requires-Root: no
+
+Package: python3-ilff
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}, python3
+Description: Indexed line file format for Python
+ Indexed line file format (ILFF) for Python is a lightweight package
+ for writing and reading line-based files with an index. Writing is
+ only allowed to append to the file, so the index can be maintained by
+ appending, too. Single lines or block of lines can be retrieved
+ efficiently regardless of the length of the file. Re-indexing an
+ existing file can be achieved with the ilff-reindex command.
