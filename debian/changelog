@@ -1,3 +1,9 @@
+ilff (0.4.0-2) fionec-unstable; urgency=medium
+
+  * New version 0.4.0-2 of the package
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 27 Jul 2022 13:57:34 +0200
+
 ilff (0.4.0-1) fionec-unstable; urgency=medium
 
   * Initial release: version 0.4.0
