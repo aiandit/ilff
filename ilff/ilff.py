@@ -153,7 +153,9 @@ class ILFFFile:
         self.flush()
         shutil.copy(self.fname, self.fname + '.bak')
         self.truncate()
-        self.fromfile(open(self.fname + '.bak', 'r', encoding=self.encoding), empty=empty)
+        with open(self.fname + '.bak', 'r', encoding=self.encoding) as fcopy:
+            self.fromfile(fcopy, empty=empty)
+        os.remove(self.fname + '.bak')
 
     def getline(self, lnnum):
         (idx, idx2) = self.readindex(lnnum)
