@@ -215,8 +215,8 @@ class ILFFFile:
         print('Number of Lines: ', self.get_nlines())
         for i in range(self.get_nlines()):
             (idx1, idx2) = self.readindex(i)
-            len = idx2 - idx1
-            print('%d: %d - %d' % (i, idx1, len))
+            ln = idx2 - idx1
+            print('%d: %d - %d (%d)' % (i, idx1, idx2, ln))
 
     def eraseLine(self, ind, repl=""):
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
