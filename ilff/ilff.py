@@ -43,7 +43,6 @@ class ILFFFile:
     def remove(self):
         self.close()
         os.remove(self.fname)
-        os.remove(self.lenfilen)
         os.remove(self.idxfilen)
 
     def flush(self):
@@ -217,8 +216,8 @@ class ILFFFile:
 
     def eraseLine(self, ind, repl=""):
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
-        idx = self.readindex(ind)
-        ln = self.readlen(ind)
+        (idx, idx2) = self.readindex(ind)
+        ln = idx2 - idx
         if ln < 0 or ln > 1e5:
             print('cannot erase line %d of %s (ln %d)' % (ind, self.fname, ln))
             return
