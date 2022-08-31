@@ -104,7 +104,7 @@ class ILFFFile:
         txtdata = txt.encode(self.encoding)
         llen = len(txtdata)+1
         newidx = self.idx + llen
-        # print('*** al %d: %d,%d,%d' % (self.nlines,self.idx,len(txt),newidx,llen))
+        #  print('*** al %d: %d,%d,%d,%d' % (self.nlines,self.idx,len(txt),newidx,llen))
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
         self.file.write((txtdata + b'\n'))
