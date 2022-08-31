@@ -4,9 +4,8 @@ import sys
 
 def run():
     fname = sys.argv[1]
-    il = ilff.ILFFFile(fname, mode='a+')
-    il.buildindex()
-    il.close()
+    il = ilff.ILFFFile(fname, mode='w')
+    il.remove()
 
 if __name__ == "__main__":
     run()
