@@ -142,10 +142,12 @@ class ILFFFile:
                     break
 
     def truncate(self):
+        self.file.seek(0)
         self.file.truncate()
-        self.lenfile.truncate()
+        self.idxfile.seek(0)
         self.idxfile.truncate()
         self.nlines = 0
+        self.idx = 0
 
     def compact(self, empty=''):
         self.flush()
