@@ -1,3 +1,16 @@
+ilff (0.4.1-1) fionec-unstable; urgency=medium
+
+  * Fix install command
+  * Add remove()
+  * Add truncate(), eraseLine() and compact()
+  * compact with configurable "blank" string + entry point
+  * No lenfile any more
+  * Better compact(): remove file copy at end
+  * Enhance dumpindex()
+  * New version 0.4.1
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 31 Aug 2022 12:47:28 +0200
+
 ilff (0.4.0-2) fionec-unstable; urgency=medium
 
   * New version 0.4.0-2 of the package
