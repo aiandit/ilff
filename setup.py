@@ -187,7 +187,9 @@ setup(
     entry_points={  # Optional
         'console_scripts': [
             'ilff-showindex=ilff.showindex:run',
+            'ilff-rm=ilff.remove:run',
             'ilff-reindex=ilff.reindex:run',
+            'ilff-compact=ilff.compact:run',
             'ilff-nlines=ilff.nlines:run',
             'ilff-getline=ilff.getline:run',
             'ilff-getlines=ilff.getlines:run',

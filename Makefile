@@ -17,8 +17,11 @@ allclean:
 uninstall:
 	$(PYTHON) -m pip uninstall -y ilff
 
-install:
+install: wheel-pkg
 	$(PYTHON) -m pip install $(lastword $(shell ls -l dist/*.whl))
+
+update: wheel-pkg
+	$(PYTHON) -m pip install -I $(lastword $(shell ls -l dist/*.whl))
 
 update: wheel-pkg uninstall install
 
