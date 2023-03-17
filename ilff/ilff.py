@@ -8,6 +8,7 @@ class ILFFFile:
     nlines = 0
     isILFF = True
     indexBytes = 8
+    maxmtimediff = 1
 
     def __init__(self, fname, mode='r', encoding='utf8'):
 #        print('*** create: %s, append=%s' % (fname,append,))
@@ -109,6 +110,10 @@ class ILFFFile:
         self.idx = newidx
         self.file.write((txtdata + b'\n'))
         self.nlines += 1
+        stf = os.stat(self.file.fileno())
+        sti = os.stat(self.idxfile.fileno())
+        if stf.st_mtime - sti.st_mtime > self.maxmtimediff:
+            self.idxfile.flush()
 
     def getIndexFile(self, fname):
         return fname + ".idx"
