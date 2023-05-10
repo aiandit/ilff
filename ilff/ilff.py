@@ -10,7 +10,7 @@ class ILFFFile:
     indexBytes = 8
     maxmtimediff = 1
 
-    def __init__(self, fname, mode='r', encoding='utf8'):
+    def __init__(self, fname, mode='r', encoding='utf8', symlinks=True):
 #        print('*** create: %s, append=%s' % (fname,append,))
         self.fname = fname
         if encoding is not None:
@@ -27,13 +27,21 @@ class ILFFFile:
         umode += 'b'
 #        print('open %s with mode %s' %(self.fname, umode))
         self.file = open(self.fname, mode + 'b')
-        (base, notdir) = os.path.split(self.fname)
+        if symlinks:
+            self.realfname = os.readlink(self.fname)
+            if not os.path.isabs(self.realfname):
+                self.realfname = os.path.join(os.path.dirname(self.fname), self.realfname)
+                # print(f'readlink: {self.fname} => {self.realfname}')
+        else:
+            self.realfname = self.fname
+        (base, notdir) = os.path.split(self.realfname)
         indexDir = os.path.join(base, '.ilff-index')
         try:
             os.mkdir(indexDir)
         except:
             pass
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
+        # print(f'index file: {self.fname} => {self.idxfilen}')
         if not os.path.exists(self.idxfilen):
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
