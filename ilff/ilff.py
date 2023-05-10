@@ -40,6 +40,8 @@ class ILFFFile:
             self.idxfile = open(self.idxfilen, umode)
             self.nlines = self.get_nlines()
             self.idx = self.readindex(self.nlines-1)[1]
+        else:
+            print(f'error: {fname} does not appear to be an indexed file')
 
     def remove(self):
         self.close()
@@ -251,7 +253,7 @@ class ILFFGetLines:
         # print('*** create: %s, append=%s' % (fname,append,))
         self.ilff = ILFFFile(fname, mode=mode, encoding=encoding)
         if not self.ilff.isILFF:
-            # print('Index not found, opening normally: %s' % (fname,))
+            print('Index not found, opening normally: %s' % (fname,))
             self.ilff = None
             self.fname = fname
             self.mode = mode
