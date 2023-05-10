@@ -27,7 +27,7 @@ class ILFFFile:
         umode += 'b'
 #        print('open %s with mode %s' %(self.fname, umode))
         self.file = open(self.fname, mode + 'b')
-        if symlinks:
+        if symlinks and os.path.islink(self.fname):
             self.realfname = os.readlink(self.fname)
             if not os.path.isabs(self.realfname):
                 self.realfname = os.path.join(os.path.dirname(self.fname), self.realfname)
