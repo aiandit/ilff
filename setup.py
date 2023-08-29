@@ -186,6 +186,8 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
+            'ilff-cat=ilff.cat:run',
+            'ilff-tee=ilff.tee:run',
             'ilff-showindex=ilff.showindex:run',
             'ilff-rm=ilff.remove:run',
             'ilff-reindex=ilff.reindex:run',
@@ -194,6 +196,7 @@ setup(
             'ilff-getline=ilff.getline:run',
             'ilff-getlines=ilff.getlines:run',
             'ilff-getlinestxt=ilff.getlinestxt:run',
+            'ilff-cleanindex=ilff.cleanindex:run',
         ],
     },
 
