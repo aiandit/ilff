@@ -1,3 +1,17 @@
+ilff (0.4.5-1) fionec-unstable; urgency=medium
+
+  * Ensure index file is flushed often enough
+  * Add tool for cleaning up stale index files
+  * Error messages
+  * Handle symlink if necessary to find index file
+  * More prudent
+  * Only read link when it is a link
+  * Two new cmdline tools: cat and tee
+  * Always force install
+  * New version 0.4.5
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 29 Aug 2023 13:22:34 +0200
+
 ilff (0.4.1-1) fionec-unstable; urgency=medium
 
   * Fix install command
