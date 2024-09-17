@@ -25,6 +25,13 @@ update: wheel-pkg
 
 update: wheel-pkg uninstall install
 
+venv = /var/lib/venvs/test
+venv-install:
+	bash -c ". $(venv)/bin/activate && $(MAKE) install PREFIX=$(venv)"
+
+venv-uninstall:
+	bash -c ". $(venv)/bin/activate && $(MAKE) uninstall PREFIX=$(venv)"
+
 
 TESTF ?= test.csv
 
