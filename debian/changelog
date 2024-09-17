@@ -1,3 +1,9 @@
+ilff (0.4.6-1) fionec-unstable; urgency=medium
+
+  * New version 0.4.6
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 17 Sep 2024 08:54:12 +0200
+
 ilff (0.4.5-1) fionec-unstable; urgency=medium
 
   * Ensure index file is flushed often enough
