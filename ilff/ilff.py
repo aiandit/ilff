@@ -199,6 +199,8 @@ class ILFFFile:
         return [ self.getline(start+ln) for ln in range(nlines) ]
 
     def getlinestxt(self, start, nlines):
+        if nlines <= 0:
+            return ''
         (idxs, idxs2) = self.readindex(start)
         (idxe, idxe2) = self.readindex(start+nlines-1)
         self.file.seek(idxs)

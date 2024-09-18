@@ -1,17 +1,31 @@
 import ilff
 import sys
+import argparse
+
+
+def parseargs():
+  parser = argparse.ArgumentParser(description='Get line range from ILFF file.')
+
+  #parser.add_argument('--debug', action='store_true', help='Debug output')
+  #parser.add_argument('--verbose', action='store_true', help='Verbose output')
+
+  parser.add_argument('infiles', metavar='ILFF-File', nargs='*', type=str, help='Input file')
+
+  args = parser.parse_args()
+  return args
+
 
 def run():
-    if len(sys.argv) < 2:
-        print('Usage: ilff-nlines filename')
-        return
-    for i in range(len(sys.argv) - 1):
-        fname = sys.argv[i+1]
+
+    args = parseargs()
+
+    for fname in args.infiles:
         il = ilff.ILFFFile(fname)
         if il.isILFF:
             print(fname, il.get_nlines())
         else:
             print(fname, "not an ILFF file")
+
 
 if __name__ == "__main__":
     run()
