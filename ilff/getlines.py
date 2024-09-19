@@ -12,13 +12,15 @@ def parseargs():
   #parser.add_argument('--debug', action='store_true', help='Debug output')
   #parser.add_argument('--verbose', action='store_true', help='Verbose output')
 
-  parser.add_argument('--begin', '-b', metavar='N', type=int, help='begin index')
-  parser.add_argument('--end', '-e', metavar='N', type=int, help='end index')
-  parser.add_argument('--number', '-n', metavar='N', type=int, help='number of lines')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--begin', '-b', metavar='N', type=int, help='begin index')
+  group.add_argument('--lines', '-l', type=str, metavar='M:N', help='line range begin:num')
 
-  parser.add_argument('--lines', '-l', type=str, metavar='M:N', help='line range begin:num')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--end', '-e', metavar='N', type=int, help='end index')
+  group.add_argument('--number', '-n', metavar='N', type=int, help='number of lines')
 
-  parser.add_argument('--outfile', '-o', type=str, help='output file')
+  parser.add_argument('--outfile', '-o', metavar='FILE', type=str, help='output file')
 
   parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
 
@@ -47,8 +49,8 @@ def getRange(args):
         if args.end is not None:
             e = args.end
             n = e - b
-        elif args.number_of_lines is not None:
-            n = args.number_of_lines
+        elif args.number is not None:
+            n = args.number
         else:
             print('-n or -e must be given')
             sys.exit(1)
