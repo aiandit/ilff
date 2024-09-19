@@ -1,23 +1,28 @@
 import ilff
 import sys
 import argparse
+from . import VERSION
 
 
 def parseargs():
   parser = argparse.ArgumentParser(description='Get line range from ILFF file.')
 
+  parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
+
   #parser.add_argument('--debug', action='store_true', help='Debug output')
   #parser.add_argument('--verbose', action='store_true', help='Verbose output')
 
-  parser.add_argument('--begin', '-b', type=int, help='Begin index')
-  parser.add_argument('--end', '-e', type=int, help='End index')
-  parser.add_argument('--number-of-lines', '-n', type=int, help='Number of lines')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--begin', '-b', metavar='N', type=int, help='begin index')
+  group.add_argument('--lines', '-l', type=str, metavar='M:N', help='line range begin:num')
 
-  parser.add_argument('--lines', '-l', type=str, help='Line range begin:num')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--end', '-e', metavar='N', type=int, help='end index')
+  group.add_argument('--number', '-n', metavar='N', type=int, help='number of lines')
 
-  parser.add_argument('--outfile', '-o', type=str, help='Output file')
+  parser.add_argument('--outfile', '-o', metavar='FILE', type=str, help='output file')
 
-  parser.add_argument('infile', metavar='ILFF-File', type=str, help='Input file name')
+  parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
 
   args = parser.parse_args()
   return args
@@ -44,8 +49,8 @@ def getRange(args):
         if args.end is not None:
             e = args.end
             n = e - b
-        elif args.number_of_lines is not None:
-            n = args.number_of_lines
+        elif args.number is not None:
+            n = args.number
         else:
             print('-n or -e must be given')
             sys.exit(1)

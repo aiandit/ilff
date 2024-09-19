@@ -1,11 +1,14 @@
 import ilff
-
 import sys
+from .nlines import parseargs
+
 
 def run():
-    fname = sys.argv[1]
-    il = ilff.ILFFFile(fname)
-    il.dumpIndex()
+    args = parseargs('Show index of ILFF file.')
+    for fname in args.infiles:
+        il = ilff.ILFFFile(fname)
+        il.dumpIndex()
+
 
 if __name__ == "__main__":
     run()

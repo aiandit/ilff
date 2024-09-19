@@ -1,15 +1,16 @@
 import ilff
-
+from .nlines import parseargs
 import sys
 
+
 def run():
-    fname = sys.argv[1]
+    args = parseargs('Remove emoty lines from ILFF file.')
     empty = ''
-    if len(sys.argv) > 2:
-        empty = sys.argv[2]
-    il = ilff.ILFFFile(fname, mode='r+')
-    il.compact(empty=empty)
-    il.close()
+    for fname in args.infiles:
+        il = ilff.ILFFFile(fname, mode='r+')
+        il.compact(empty=empty)
+        il.close()
+
 
 if __name__ == "__main__":
     run()
