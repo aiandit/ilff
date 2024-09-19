@@ -49,7 +49,7 @@ $(TESTF):
 
 check2: $(TESTF)
 	python3 testilff.py
-	python3 ilff/reindex.py $(TESTF)
+	ilff-reindex $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)
 	python3 testgetlns.py $(TESTF)
@@ -61,7 +61,7 @@ check2: $(TESTF)
 check3: $(TESTF)
 	-mkdir /tmp/subdir
 	cp $(TESTF) /tmp/subdir
-	python3 ilff/reindex.py /tmp/subdir/$(TESTF)
+	ilff-reindex /tmp/subdir/$(TESTF)
 	python3 testgetln.py /tmp/subdir/$(TESTF)
 	python3 testgetr.py /tmp/subdir/$(TESTF)
 	rm -rf /tmp/subdir
