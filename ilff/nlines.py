@@ -4,8 +4,8 @@ import sys
 import argparse
 
 
-def parseargs():
-  parser = argparse.ArgumentParser(description='Get line range from ILFF file.')
+def parseargs(help):
+  parser = argparse.ArgumentParser(description=help)
 
   parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
@@ -20,7 +20,7 @@ def parseargs():
 
 def run():
 
-    args = parseargs()
+    args = parseargs('Get line range from ILFF file.')
 
     for fname in args.infiles:
         il = ilff.ILFFFile(fname)

@@ -6,7 +6,7 @@ import argparse
 
 
 def parseargs(cmdargs=None):
-    parser = argparse.ArgumentParser(description='ILFF cat tool')
+    parser = argparse.ArgumentParser(description='Concatenate ILFF files.')
 
     parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 

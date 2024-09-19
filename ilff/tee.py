@@ -6,18 +6,14 @@ import argparse
 
 
 def parseargs(cmdargs=None):
-
-    parser = argparse.ArgumentParser(description='ILFF cat tool')
+    parser = argparse.ArgumentParser(description='ILFF tee tool.')
 
     parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
-
-    parser.add_argument('--version', type=int, nargs='?', const=1, help='Show version')
     parser.add_argument('--verbose', type=int, nargs='?', const=1, help='Verbose output')
 
     parser.add_argument('--append', '-a', action='store_true', help='Append')
 
     parser.add_argument('outfile', type=str, nargs='*', help='Output files')
-
 
     args = parser.parse_args(cmdargs)
 
@@ -27,10 +23,6 @@ def parseargs(cmdargs=None):
 def run():
 
     args = parseargs()
-
-    if args.version:
-        print(f'ILFF tee version {ilff.VERSION}')
-        return
 
     mode = 'a' if args.append else 'w'
 
