@@ -1,18 +1,18 @@
 import ilff
 import sys
 import argparse
+from . import VERSION
 
 
 def parseargs():
-  parser = argparse.ArgumentParser(description='Get line from ILFF file.')
+  parser = argparse.ArgumentParser(description='Get line(s) from ILFF file.')
 
-  #parser.add_argument('--debug', action='store_true', help='Debug output')
-  #parser.add_argument('--verbose', action='store_true', help='Verbose output')
+  parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
-  parser.add_argument('--outfile', '-o', type=str, help='Output file')
+  parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
+  parser.add_argument('line', metavar='Number', type=int, nargs='+', help='line number')
 
-  parser.add_argument('infile', metavar='ILFF-File', type=str, help='Input file name')
-  parser.add_argument('line', metavar='Line number', type=int, nargs='+', help='Line number')
+  parser.add_argument('--outfile', '-o', metavar='FILE', type=str, help='output file')
 
   args = parser.parse_args()
   return args

@@ -1,4 +1,5 @@
 import ilff
+from . import VERSION
 
 import sys
 import argparse
@@ -7,6 +8,8 @@ import argparse
 def parseargs(cmdargs=None):
 
     parser = argparse.ArgumentParser(description='ILFF cat tool')
+
+    parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
     parser.add_argument('--version', type=int, nargs='?', const=1, help='Show version')
     parser.add_argument('--verbose', type=int, nargs='?', const=1, help='Verbose output')

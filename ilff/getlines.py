@@ -1,10 +1,13 @@
 import ilff
 import sys
 import argparse
+from . import VERSION
 
 
 def parseargs():
   parser = argparse.ArgumentParser(description='Get line range from ILFF file.')
+
+  parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
   #parser.add_argument('--debug', action='store_true', help='Debug output')
   #parser.add_argument('--verbose', action='store_true', help='Verbose output')
