@@ -1,3 +1,11 @@
+ilff (0.5.2-1) fionec-unstable; urgency=medium
+
+  * Add proper cmdline interface to remaining tools
+  * Add version info to cmdline options
+  * New version 0.5.2
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Thu, 19 Sep 2024 12:42:24 +0200
+
 ilff (0.5.0-1) fionec-unstable; urgency=medium
 
   * Add proper cmdline interfaces to tools
