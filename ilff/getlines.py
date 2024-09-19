@@ -12,15 +12,15 @@ def parseargs():
   #parser.add_argument('--debug', action='store_true', help='Debug output')
   #parser.add_argument('--verbose', action='store_true', help='Verbose output')
 
-  parser.add_argument('--begin', '-b', type=int, help='Begin index')
-  parser.add_argument('--end', '-e', type=int, help='End index')
-  parser.add_argument('--number-of-lines', '-n', type=int, help='Number of lines')
+  parser.add_argument('--begin', '-b', metavar='N', type=int, help='begin index')
+  parser.add_argument('--end', '-e', metavar='N', type=int, help='end index')
+  parser.add_argument('--number', '-n', metavar='N', type=int, help='number of lines')
 
-  parser.add_argument('--lines', '-l', type=str, help='Line range begin:num')
+  parser.add_argument('--lines', '-l', type=str, metavar='M:N', help='line range begin:num')
 
-  parser.add_argument('--outfile', '-o', type=str, help='Output file')
+  parser.add_argument('--outfile', '-o', type=str, help='output file')
 
-  parser.add_argument('infile', metavar='ILFF-File', type=str, help='Input file name')
+  parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
 
   args = parser.parse_args()
   return args
