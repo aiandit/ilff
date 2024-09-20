@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-all: src-pkg wheel-pkg
+all: src-pkg wheel-pkg c-libs
 
 src-pkg:
 	$(PYTHON) setup.py sdist
@@ -32,11 +32,14 @@ venv-install: c-install
 venv-uninstall: c-uninstall
 	bash -c ". $(venv)/bin/activate && $(MAKE) uninstall PREFIX=$(venv)"
 
+c-libs:
+	$(MAKE) -C src
+
 c-install:
-	make -C src install
+	$(MAKE) -C src install
 
 c-uninstall:
-	make -C src uninstall
+	$(MAKE) -C src uninstall
 
 
 TESTF ?= test.csv

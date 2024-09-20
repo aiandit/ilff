@@ -1,3 +1,6 @@
+prefix = /usr
+INSTDIR = $(DESTDIR)$(prefix)
+
 LIBNAME = ilff
 
 sources = ilff.c
@@ -7,6 +10,9 @@ objects = $(patsubst %.c, %.o, $(sources))
 LIB = $(LIBNAME).a
 DLIB = $(LIBNAME).so
 
+ifeq ($(CFLAGS),)
+CFLAGS = -O3
+endif
 CFLAGS += -Wall -Wextra
 
 
@@ -22,9 +28,9 @@ $(LIB): $(objects)
 
 ilff.o: ilff.h
 
-PREFIX = /usr
-
 install: $(LIB) $(DLIB)
-	install -m 644 ilff.h $(PREFIX)/include
-	install -m 644 $(LIB) $(PREFIX)/lib
-	install -m 755 $(DLIB) $(PREFIX)/lib
+	install -d $(INSTDIR)/lib
+	install -d $(INSTDIR)/include
+	install -m 644 ilff.h $(INSTDIR)/include
+	install -m 644 $(LIB) $(INSTDIR)/lib
+	install -m 755 $(DLIB) $(INSTDIR)/lib
