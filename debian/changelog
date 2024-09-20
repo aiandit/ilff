@@ -1,3 +1,9 @@
+ilff (0.6.4-1) fionec-unstable; urgency=medium
+
+  * New version 0.6.4
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 20 Sep 2024 17:47:00 +0200
+
 ilff (0.6.2-1) fionec-unstable; urgency=medium
 
   * Build binary, devel and python pkg
