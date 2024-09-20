@@ -1,3 +1,10 @@
+ilff (0.6.0-1) fionec-unstable; urgency=medium
+
+  * Add native implementation
+  * New version 0.6.0
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 20 Sep 2024 15:36:41 +0200
+
 ilff (0.5.2-2) fionec-unstable; urgency=medium
 
   * Maintainence release
