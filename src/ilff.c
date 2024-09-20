@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <libgen.h>
+
+#include <sys/stat.h>
+#include <unistd.h>
 
 typedef int64_t ILFF_addr_t;
 #define ILFF_ADDRSZ sizeof(ILFF_addr_t)
@@ -66,50 +68,60 @@ static int closeILFF(ILFF* ilff) {
   return 0;
 }
 
-static ILFF *openILFF(char const *name, char const *mode) {
-  ILFF *ilff = allocILFF();
-
-  ilff->mainFileName = strdup(name);
-
-  ilff->mode = strdup(mode);
-
+static char* getIndexFileName(char const *name, int createIndexDir) {
   char* ncopy1 = strdup(name);
   char* fdir = dirname(ncopy1);
 
   char* ncopy2 = strdup(name);
   char* fbase = basename(ncopy2);
 
-  ilff->indexFileName = (char*) malloc(strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF));
+  char* indexFileName = (char*) malloc(strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF));
 
   size_t offs = 0;
 
-  strcpy(ilff->indexFileName, fdir);
+  strcpy(indexFileName, fdir);
   offs += strlen(fdir);
 
-  ilff->indexFileName[offs] = '/';
+  indexFileName[offs] = '/';
   offs += 1;
 
-  strcpy(ilff->indexFileName + offs, ILFF_INDEX_DIR);
+  strcpy(indexFileName + offs, ILFF_INDEX_DIR);
   offs += sizeof(ILFF_INDEX_DIR) - 1;
 
-  int rcmd = mkdir(ilff->indexFileName, 0755);
-  if (rcmd && errno != EEXIST) {
-    fprintf(stderr,
-	    "ILFF: Error: Failed to create index directory %s: %s\n",
-	    ilff->indexFileName, strerror(errno));
-    closeILFF(ilff);
+  if (createIndexDir) {
+    int rcmd = mkdir(indexFileName, 0755);
+    if (rcmd && errno != EEXIST) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to create index directory %s: %s\n",
+	      indexFileName, strerror(errno));
+      return 0;
+    }
   }
 
-  ilff->indexFileName[offs] = '/';
+  indexFileName[offs] = '/';
   offs += 1;
 
-  strcpy(ilff->indexFileName + offs, fbase);
+  strcpy(indexFileName + offs, fbase);
   offs += strlen(fbase);
 
-  strcpy(ilff->indexFileName + offs, ILFF_INDEX_SUFF);
+  strcpy(indexFileName + offs, ILFF_INDEX_SUFF);
 
   free(ncopy1);
   free(ncopy2);
+
+  return indexFileName;
+}
+
+static ILFF *openILFF(char const *name, char const *mode) {
+  ILFF *ilff = allocILFF();
+
+  ilff->mainFileName = strdup(name);
+  ilff->mode = strdup(mode);
+  ilff->indexFileName = getIndexFileName(name, 1);
+  if (ilff->indexFileName == 0) {
+    closeILFF(ilff);
+    return 0;
+  }
 
   char mymode[3] = {'r', 'b', 0};
   mymode[0]= mode[0];
@@ -326,4 +338,15 @@ int ilffFlush(ILFFFile* ilff_) {
   fflush(ilff->mainFile);
   fflush(ilff->indexFile);
   return 0;
+}
+
+int ilffRemove(char const* name) {
+  char* indexFileName = getIndexFileName(name, 0);
+
+  int rc1 = unlink(name);
+  int rc2 = unlink(indexFileName);
+
+  free(indexFileName);
+
+  return rc1 == 0 && rc2 == 0 ? 0 : -1;
 }

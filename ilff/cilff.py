@@ -16,6 +16,9 @@ def configLib(lib):
     lib.ilffFlush.argtypes = (c_void_p,)
     lib.ilffFlush.returntype = c_int
 
+    lib.ilffNLines.argtypes = (c_void_p,)
+    lib.ilffNLines.returntype = c_long
+
     lib.ilffWrite.argtypes = (c_void_p, c_char_p, c_long)
     lib.ilffWrite.returntype = c_int
 
@@ -27,6 +30,15 @@ def configLib(lib):
 
     lib.ilffGetRange.argtypes = (c_void_p, c_long, c_long, c_char_p, c_long_p)
     lib.ilffGetRange.returntype = c_int
+
+    lib.ilffRemove.argtypes = (c_char_p,)
+    lib.ilffRemove.returntype = c_int
+
+
+def getLib():
+    lib = CDLL('ilff.so')
+    configLib(lib)
+    return lib
 
 
 class CILFFError(BaseException):
@@ -41,13 +53,10 @@ class CILFFFile:
     encoding = 'utf8'
     nameenc = 'utf8'
     isILFF = True
-    lib = None
+    lib = getLib()
     handle = 0
 
     def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True):
-        self.lib = CDLL('ilff.so')
-        configLib(self.lib)
-
         self.fname = fname
         self.idxfilen = fname + '.iidx'
         if encoding is not None:
@@ -61,6 +70,15 @@ class CILFFFile:
 
     def __del__(self):
         self.close()
+
+    def remove(self, name=None):
+        if type(self) == str:
+            name = self
+            nameenc = CILFFFile.nameenc
+        else:
+            name = self.fname
+            nameenc = self.nameenc
+        return CILFFFile.lib.ilffRemove(name.encode(nameenc))
 
     def close(self):
         if self.handle:

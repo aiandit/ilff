@@ -18,3 +18,5 @@ int64_t ilffNLines(ILFFFile *);
 
 int ilffReindex(ILFFFile*);
 int ilffFlush(ILFFFile*);
+
+int ilffRemove(char const *name);
