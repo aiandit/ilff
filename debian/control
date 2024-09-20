@@ -9,11 +9,28 @@ Rules-Requires-Root: no
 
 Package: python3-ilff
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3
-Description: Indexed line file format for Python
+Depends: ${python3:Depends}, ${misc:Depends}, python3, ilff
+Description: Indexed line file format (ILFF) for Python
  Indexed line file format (ILFF) for Python is a lightweight package
  for writing and reading line-based files with an index. Writing is
  only allowed to append to the file, so the index can be maintained by
  appending, too. Single lines or block of lines can be retrieved
  efficiently regardless of the length of the file. Re-indexing an
  existing file can be achieved with the ilff-reindex command.
+
+Package: ilff
+Architecture: any
+Depends:
+Description: Indexed line file format (ILFF) for C
+ Indexed line file format (ILFF) is a lightweight package for writing
+ and reading line-based files with an index. Writing is only allowed
+ to append to the file, so the index can be maintained by appending,
+ too. Single lines or block of lines can be retrieved efficiently
+ regardless of the length of the file. Re-indexing an existing file
+ can be achieved with the reindex function.
+
+Package: ilff-dev
+Architecture: any
+Depends: ilff (=${binary:Version})
+Description: Indexed line file format (ILFF) for C
+ Development files for the ILFF C library.
