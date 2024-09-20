@@ -36,7 +36,14 @@ def configLib(lib):
 
 
 def getLib():
-    lib = CDLL('ilff.so')
+    libnames = ['ilff.so', '../src/ilff.so', './src/ilff.so']
+    for name in libnames:
+        try:
+            lib = CDLL(name)
+            break
+        except:
+            pass
+    lib = CDLL(name)
     configLib(lib)
     return lib
 
