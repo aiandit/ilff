@@ -14,23 +14,29 @@ clean:
 allclean:
 	git clean -xfd
 
-uninstall:
+uninstall: c-uninstall
 	$(PYTHON) -m pip uninstall -y ilff
 
-install: wheel-pkg
+install: wheel-pkg c-install
 	$(PYTHON) -m pip install -I $(lastword $(shell ls -lrt dist/*.whl))
 
-update: wheel-pkg
+update: wheel-pkg c-install
 	$(PYTHON) -m pip install -I $(lastword $(shell ls -lrt dist/*.whl))
 
 update: wheel-pkg uninstall install
 
 venv = /var/lib/venvs/test
-venv-install:
+venv-install: c-install
 	bash -c ". $(venv)/bin/activate && $(MAKE) install PREFIX=$(venv)"
 
-venv-uninstall:
+venv-uninstall: c-uninstall
 	bash -c ". $(venv)/bin/activate && $(MAKE) uninstall PREFIX=$(venv)"
+
+c-install:
+	make -C src install
+
+c-uninstall:
+	make -C src uninstall
 
 
 TESTF ?= test.csv
@@ -49,6 +55,7 @@ $(TESTF):
 
 check2: $(TESTF)
 	python3 testilff.py
+	python3 testcilff.py
 	python3 testreindex.py $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)

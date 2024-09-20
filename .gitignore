@@ -6,3 +6,6 @@ __pycache__
 build/
 dist/
 *.egg-info/
+src/*.o
+src/*.a
+src/*.so

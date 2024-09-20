@@ -1,6 +1,7 @@
-__version__ = '0.5.2'
+__version__ = '0.6.0'
 
 VERSION = __version__
 
 from ilff.ilff import *
 from . import reindex
+from ilff.cilff import CILFFFile
