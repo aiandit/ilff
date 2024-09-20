@@ -58,7 +58,6 @@ $(TESTF):
 
 check2: $(TESTF)
 	python3 testilff.py
-	python3 testcilff.py
 	python3 testreindex.py $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)

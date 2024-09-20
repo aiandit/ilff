@@ -34,3 +34,8 @@ install: $(LIB) $(DLIB)
 	install -m 644 ilff.h $(INSTDIR)/include
 	install -m 644 $(LIB) $(INSTDIR)/lib
 	install -m 755 $(DLIB) $(INSTDIR)/lib
+
+uninstall:
+	rm -rf $(INSTDIR)/include/ilff.h
+	rm -rf $(INSTDIR)/lib/ilff.a
+	rm -rf $(INSTDIR)/lib/ilff.so
