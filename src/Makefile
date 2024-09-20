@@ -13,7 +13,7 @@ DLIB = $(LIBNAME).so
 ifeq ($(CFLAGS),)
 CFLAGS = -O3
 endif
-CFLAGS += -Wall -Wextra
+CFLAGS += -Wall -Wextra -fPIC
 
 
 all: build-lib
