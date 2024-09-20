@@ -169,7 +169,7 @@ static int readint(FILE* file, ILFF_addr_t* idx) {
 
   if (rcr != ILFF_ADDRSZ) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to read from index file at offset %d: %s\n",
+	    "ILFF: Error: Failed to read from index file at offset %ld: %s\n",
 	    ftell(file), strerror(errno));
     *idx = 0;
   } else {

@@ -4,4 +4,4 @@ VERSION = __version__
 
 from ilff.ilff import *
 from . import reindex
-from . import cilff
+from ilff.cilff import CILFFFile
