@@ -36,21 +36,25 @@ def configLib(lib):
 
 
 def getLib():
-    libnames = ['ilff.so', '../src/ilff.so', './src/ilff.so']
+    lib = None
+    mfile = sys.modules['ilff.cilff'].__file__
+    csrcdir = os.path.join(os.path.dirname(mfile), '..', 'src')
+    libnames = ['ilff.so', os.path.join(csrcdir, 'ilff.so')]
     for name in libnames:
         try:
             lib = CDLL(name)
+            print(f'found cILFF library {name}')
             break
         except:
             pass
-    lib = CDLL(name)
-    configLib(lib)
+    if lib:
+        configLib(lib)
     return lib
 
 
 class CILFFError(BaseException):
     def __init__(self, s):
-        super().__init__(f'CILFF operation "{s}" failed')
+        super().__init__(f'cILFF operation "{s}" failed')
 
 
 class CILFFFile:
@@ -64,6 +68,8 @@ class CILFFFile:
     handle = 0
 
     def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True):
+        if self.lib is None:
+            raise CILFFError('cILFF library not available')
         self.fname = fname
         self.idxfilen = fname + '.iidx'
         if encoding is not None:
