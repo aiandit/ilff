@@ -123,8 +123,16 @@ static ILFF *openILFF(char const *name, char const *mode) {
     return 0;
   }
 
-  char mymode[3] = {'r', 'b', 0};
-  mymode[0]= mode[0];
+  char mymode[4] = {0};
+  int nmode = 0;
+  mymode[nmode] = mode[0];
+  ++nmode;
+  if (mode[1] == '+') {
+    mymode[nmode] = mode[1];
+    ++nmode;
+  }
+  mymode[nmode] = 'b';
+  ++nmode;
 
   ilff->mainFile = fopen(ilff->mainFileName, mymode);
   if (ilff->mainFile == 0) {
@@ -330,6 +338,7 @@ int64_t ilffNLines(ILFFFile* ilff_) {
 
 int ilffReindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
+  
   return 0;
 }
 
