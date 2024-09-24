@@ -1,11 +1,11 @@
-import os, sys, shutil
+import os, sys, shutil, io
 
 class ILFFFile:
 
     fname = ''
     mode = 'r'
     encoding = 'utf8'
-    nlines = 0
+    _nlines = 0
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
@@ -46,8 +46,8 @@ class ILFFFile:
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
             self.idxfile = open(self.idxfilen, umode)
-            self.nlines = self.get_nlines()
-            self.idx = self.readindex(self.nlines-1)[1]
+            self._nlines = self.get_nlines()
+            self.idx = self.readindex(self._nlines-1)[1]
         else:
             print(f'error: {fname} does not appear to be an indexed file')
 
@@ -93,17 +93,21 @@ class ILFFFile:
     def readindex(self, lnnum):
         return self.readint(self.idxfile, lnnum)
 
+    def _ifileSize(self):
+        self.idxfile.seek(0, io.SEEK_END)
+        return self.idxfile.tell()
+
+    def nlines(self):
+        return int(self._ifileSize()/self.indexBytes)
+
     def get_nlines(self):
-        fsz = os.stat(self.idxfilen).st_size
-        if fsz % self.indexBytes != 0:
-            print('Error!')
-        return int(fsz/self.indexBytes)
+        return self.nlines()
 
     def write(self, txt):
         self.appendLine(txt)
 
     def appendLine(self, txt):
-        #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
+        #        print('*** al %d: %d,%d' % (self._nlines,self.idxfile.tell(), self.lenfile.tell()))
         llen = len(txt)
         if txt[llen-1] == '\n':
             txt = txt[0:llen-1]
@@ -111,15 +115,15 @@ class ILFFFile:
             print('This is not a line')
             assert(false)
         #self.file.seek(newidx)
-        #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
+        #        print('*** al %d: %d,%d' % (self._nlines,self.idxfile.tell(), self.lenfile.tell()))
         txtdata = txt.encode(self.encoding)
         llen = len(txtdata)+1
         newidx = self.idx + llen
-        #  print('*** al %d: %d,%d,%d,%d' % (self.nlines,self.idx,len(txt),newidx,llen))
+        #  print('*** al %d: %d,%d,%d,%d' % (self._nlines,self.idx,len(txt),newidx,llen))
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
         self.file.write((txtdata + b'\n'))
-        self.nlines += 1
+        self._nlines += 1
         stf = os.stat(self.file.fileno())
         sti = os.stat(self.idxfile.fileno())
         if stf.st_mtime - sti.st_mtime > self.maxmtimediff:
@@ -161,7 +165,7 @@ class ILFFFile:
         self.file.truncate()
         self.idxfile.seek(0)
         self.idxfile.truncate()
-        self.nlines = 0
+        self._nlines = 0
         self.idx = 0
 
     def compact(self, empty=''):
