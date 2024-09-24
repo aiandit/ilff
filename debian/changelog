@@ -1,3 +1,11 @@
+ilff (0.6.5-1) fionec-unstable; urgency=medium
+
+  * Enhance C impl
+  * Tests for C impl
+  * New version 0.6.5
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 24 Sep 2024 12:14:48 +0200
+
 ilff (0.6.4.2-1) fionec-unstable; urgency=medium
 
   * New version 0.6.4.2
