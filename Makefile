@@ -2,11 +2,8 @@ PYTHON ?= python
 
 all: src-pkg wheel-pkg c-libs
 
-src-pkg:
-	$(PYTHON) setup.py sdist
-
-wheel-pkg:
-	$(PYTHON) setup.py bdist_wheel
+src-pkg wheel-pkg:
+	$(PYTHON) -m build .
 
 clean:
 	! test -d .git || git clean -xfd --exclude dist
