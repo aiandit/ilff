@@ -291,27 +291,35 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   return 0;
 }
 
-int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** data, int64_t* lengths, int64_t* nLines) {
+int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** data, int64_t* lengths) {
 
-  if (data == 0) return -1;
-  if (nLines == 0) return -1;
   if (lengths == 0) return -1;
 
-  int64_t i = 0, offs = lnnum;
+  int64_t i = 0;
+
+  if (data == 0) {
+    for ( ; i < N; ++i) {
+      int rcl = ilffGetLine(ilff_, lnnum + i, 0, lengths + i);
+
+      if (rcl != 0) {
+	break;
+      }
+    }
+    return 0;
+  }
 
   for ( ; i < N; ++i) {
     if (*data == 0) {
       break;
     }
 
-    int rcl = ilffGetLine(ilff_, offs, data[i], lengths + i);
+    int rcl = ilffGetLine(ilff_, lnnum + i, data[i], lengths + i);
 
     if (rcl != 0) {
       break;
     }
   }
 
-  *nLines = i;
   return 0;
 }
 

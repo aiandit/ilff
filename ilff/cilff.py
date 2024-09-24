@@ -3,6 +3,7 @@ import os, sys, shutil
 from ctypes import CDLL, POINTER, c_int, c_long, c_char_p, c_void_p
 
 c_long_p = POINTER(c_long)
+c_char_pp = POINTER(c_char_p)
 
 
 def configLib(lib):
@@ -36,6 +37,9 @@ def configLib(lib):
 
     lib.ilffGetLine.argtypes = (c_void_p, c_long, c_char_p, c_long_p)
     lib.ilffGetLine.returntype = c_int
+
+    lib.ilffGetLines.argtypes = (c_void_p, c_long, c_long, c_char_pp, c_long_p)
+    lib.ilffGetLines.returntype = c_int
 
     lib.ilffGetRange.argtypes = (c_void_p, c_long, c_long, c_char_p, c_long_p)
     lib.ilffGetRange.returntype = c_int
@@ -158,18 +162,15 @@ class CILFFFile:
         tln = bln[0:rlen.value].decode(self.encoding)
         return tln
 
-    def getlines(self, start, nlines):
-        (idx, idx2) = self.readindex(start)
-        len = idx2 - idx
-        self.file.seek(idx)
-        res = []
-        for k in range(nlines):
-            (idx, idx2) = self.readindex(start + k)
-            len = idx2 - idx
-            ln = self.file.read(len-1).decode(self.encoding)
-            d = self.file.read(1)
-            res.append(ln)
-        return res
+    def getlines(self, lnnum, nlines):
+        rlens = (c_long * nlines)()
+        self.lib.ilffGetLines(self.handle, lnnum, nlines, None, rlens, nlines)
+        lndata = (c_char_p * nlines)()
+        for (i, rlen) in enumerate(rlens):
+            lndata[i] = b'\00' * rlen
+        self.lib.ilffGetLines(self.handle, lnnum, nlines, lndata, rlens, nlines)
+        lines = [ln.decode(self.encoding) for ln in lndata]
+        return lines
 
     def getlines2(self, start, nlines):
         return [ self.getline(start+ln) for ln in range(nlines) ]
