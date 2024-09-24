@@ -16,6 +16,15 @@ def configLib(lib):
     lib.ilffFlush.argtypes = (c_void_p,)
     lib.ilffFlush.returntype = c_int
 
+    lib.ilffTruncate.argtypes = (c_void_p,)
+    lib.ilffTruncate.returntype = c_long
+
+    lib.ilffReindex.argtypes = (c_void_p,)
+    lib.ilffReindex.returntype = c_long
+
+    lib.ilffDumpindex.argtypes = (c_void_p,)
+    lib.ilffDumpindex.returntype = c_long
+
     lib.ilffNLines.argtypes = (c_void_p,)
     lib.ilffNLines.returntype = c_long
 
@@ -43,7 +52,7 @@ def getLib():
     for name in libnames:
         try:
             lib = CDLL(name)
-            print(f'found cILFF library {name}')
+            # print(f'found cILFF library {name}')
             break
         except:
             pass
@@ -54,7 +63,7 @@ def getLib():
 
 class CILFFError(BaseException):
     def __init__(self, s):
-        super().__init__(f'cILFF operation "{s}" failed')
+        super().__init__(f'cILFF operation failed: {s}')
 
 
 class CILFFFile:
@@ -98,11 +107,27 @@ class CILFFFile:
             self.lib.ilffClose(self.handle)
             self.handle = 0
 
+    def dumpindex(self):
+        return self.lib.ilffDumpindex(self.handle)
+
+    def buildindex(self):
+        return self.reindex()
+
+    def reindex(self):
+        return self.lib.ilffReindex(self.handle)
+
+    def truncate(self):
+        return self.lib.ilffTruncate(self.handle)
+
     def flush(self):
-        self.lib.ilffFlush(self.handle)
+        return self.lib.ilffFlush(self.handle)
+
+    def nlines(self):
+        print(f'Call nlines')
+        return self.lib.ilffNLines(self.handle)
 
     def get_nlines(self):
-        return self.lib.ilffNLines(self.handle)
+        return self.get_nlines()
 
     def write(self, txt):
         b = txt.encode(self.encoding)
@@ -126,6 +151,8 @@ class CILFFFile:
     def getline(self, lnnum):
         rlen = c_long()
         self.lib.ilffGetLine(self.handle, lnnum, None, rlen)
+        if rlen.value < 0:
+            raise CILFFError('got negative line size')
         bln = b' ' * rlen.value
         self.lib.ilffGetLine(self.handle, lnnum, bln, rlen)
         tln = bln[0:rlen.value].decode(self.encoding)
