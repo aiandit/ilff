@@ -1,0 +1,23 @@
+From: Johannes Willkomm <j.willkomm@fionec.de>
+Date: Tue, 24 Sep 2024 09:51:08 +0200
+Subject: Fix: compilation error
+
+---
+ src/ilff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ilff.c b/src/ilff.c
+index 26d9c5e..39e0480 100644
+--- a/src/ilff.c
++++ b/src/ilff.c
+@@ -328,8 +328,8 @@ int64_t ilffNLines(ILFFFile* ilff_) {
+   return get_nlines(ilff);
+ }
+ 
+-int ilffReindex(ILFFFile *) {
+-  //  ILFF* ilff = (ILFF*) ilff_;
++int ilffReindex(ILFFFile *ilff_) {
++  ILFF* ilff = (ILFF*) ilff_;
+   return 0;
+ }
+ 
