@@ -68,6 +68,67 @@ static int closeILFF(ILFF* ilff) {
   return 0;
 }
 
+static long fileSize(FILE* file) {
+  fseek(file, 0, SEEK_END);
+  return ftell(file);
+}
+
+static int readint(FILE* file, ILFF_addr_t* idx) {
+  char buf[ILFF_ADDRSZ];
+
+  int rcr = fread(buf, 1, ILFF_ADDRSZ, file);
+
+  if (rcr != ILFF_ADDRSZ) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to read from index file at offset %ld: %s\n",
+	    ftell(file), strerror(errno));
+    *idx = 0;
+  } else {
+    *idx = *(ILFF_addr_t*) buf;
+  }
+
+  return rcr == ILFF_ADDRSZ ? 0 : -1;
+}
+
+static int readindex(ILFF* ilff, int lnnum, ILFF_addr_t* idx1, ILFF_addr_t* idx2) {
+  int rc1 = 0, rc2 = 0;
+
+  if (lnnum > 0) {
+    int rcs = fseek(ilff->indexFile, (lnnum-1)*ILFF_ADDRSZ, SEEK_SET);
+    if (rcs != 0) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to seek in index file to %d of %ld: %s\n",
+	      lnnum, fileSize(ilff->indexFile), strerror(errno));
+      return -1;
+    }
+    rc1 = readint(ilff->indexFile, idx1);
+  } else if (lnnum < 0) {
+    *idx1 = 0;
+    *idx2 = 0;
+    return 0;
+  } else {
+    *idx1 = 0;
+    int rcs = fseek(ilff->indexFile, lnnum*ILFF_ADDRSZ, SEEK_SET);
+    if (rcs != 0) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to seek in index file to %d of %ld: %s\n",
+	      lnnum, fileSize(ilff->indexFile), strerror(errno));
+      return -1;
+    }
+  }
+
+  rc2 = readint(ilff->indexFile, idx2);
+  return rc1 == 0 && rc2 == 0 ? 0 : -1;
+}
+
+static int writeindex(ILFF* ilff, ILFF_addr_t idx) {
+  return fwrite((char const*) &idx, 1, ILFF_ADDRSZ, ilff->indexFile);
+}
+
+static ILFF_addr_t get_nlines(ILFF* ilff) {
+  return fileSize(ilff->indexFile)/ILFF_ADDRSZ;
+}
+
 static char* getIndexFileName(char const *name, int createIndexDir) {
   char* ncopy1 = strdup(name);
   char* fdir = dirname(ncopy1);
@@ -143,6 +204,11 @@ static ILFF *openILFF(char const *name, char const *mode) {
     return 0;
   }
 
+  if (mode[0] == 'a') {
+    mymode[nmode-1] = '+';
+    mymode[nmode] = 'b';
+  }
+
   ilff->indexFile = fopen(ilff->indexFileName, mymode);
   if (ilff->indexFile == 0) {
     fprintf(stderr,
@@ -150,6 +216,13 @@ static ILFF *openILFF(char const *name, char const *mode) {
 	    ilff->indexFileName, strerror(errno));
     closeILFF(ilff);
     return 0;
+  }
+
+  ilff->nlines = get_nlines(ilff);
+
+  if (ilff->nlines > 0 && mode[0] != 'r') {
+    fseek(ilff->indexFile, (ilff->nlines-1)*ILFF_ADDRSZ, SEEK_SET);
+    readint(ilff->indexFile, &ilff->idx);
   }
 
   return ilff;
@@ -163,74 +236,6 @@ ILFFFile* ilffOpen(char const *name, char const *mode) {
 int ilffClose(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
   return closeILFF(ilff);
-}
-
-static long fileSize(FILE* file) {
-  fseek(file, 0, SEEK_END);
-  return ftell(file);
-}
-
-static int readint(FILE* file, ILFF_addr_t* idx) {
-  char buf[ILFF_ADDRSZ];
-
-  int rcr = fread(buf, 1, ILFF_ADDRSZ, file);
-
-  if (rcr != ILFF_ADDRSZ) {
-    fprintf(stderr,
-	    "ILFF: Error: Failed to read from index file at offset %ld: %s\n",
-	    ftell(file), strerror(errno));
-    *idx = 0;
-  } else {
-    *idx = *(ILFF_addr_t*) buf;
-  }
-
-  return rcr;
-}
-
-static int readindex(ILFF* ilff, int lnnum, ILFF_addr_t* idx1, ILFF_addr_t* idx2) {
-  int rc1 = 0, rc2 = 0;
-
-  if (lnnum > 0) {
-    int rcs = fseek(ilff->indexFile, (lnnum-1)*ILFF_ADDRSZ, SEEK_SET);
-    if (rcs != 0) {
-      fprintf(stderr,
-	      "ILFF: Error: Failed to seek in index file to %d of %ld: %s\n",
-	      lnnum, fileSize(ilff->indexFile), strerror(errno));
-      return -1;
-    }
-    rc1 = readint(ilff->indexFile, idx1);
-  } else if (lnnum < 0) {
-    *idx1 = 0;
-    *idx2 = 0;
-    return 0;
-  } else {
-    int rcs = fseek(ilff->indexFile, lnnum*ILFF_ADDRSZ, SEEK_SET);
-    if (rcs != 0) {
-      fprintf(stderr,
-	      "ILFF: Error: Failed to seek in index file to %d of %ld: %s\n",
-	      lnnum, fileSize(ilff->indexFile), strerror(errno));
-      return -1;
-    }
-  }
-
-  rc2 = readint(ilff->indexFile, idx2);
-  return rc1 == 0 && rc2 == 0 ? 0 : -1;
-}
-
-static int writeindex(ILFF* ilff, ILFF_addr_t idx) {
-  return fwrite((char const*) &idx, 1, ILFF_ADDRSZ, ilff->indexFile);
-}
-
-static ILFF_addr_t get_nlines(ILFF* ilff) {
-  struct stat st;
-  int rcs = fstat(fileno(ilff->indexFile), &st);
-  if (rcs != 0) {
-    fprintf(stderr,
-	    "ILFF: Error: Failed to stat index file %s: %s\n",
-	    ilff->indexFileName, strerror(errno));
-    return 0;
-  }
-  return st.st_size/ILFF_ADDRSZ;
 }
 
 int ilffWrite(ILFFFile *ilff_, char const *data, int64_t len) {
@@ -260,7 +265,14 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   if (nChars == 0) return -1;
 
   ILFF_addr_t idx1, idx2;
-  readindex(ilff, lnnum, &idx1, &idx2);
+  int rci = readindex(ilff, lnnum, &idx1, &idx2);
+  if (rci != 0) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to read index for line %ld: %s\n",
+	    lnnum, strerror(errno));
+    *nChars = 0;
+    return -1;
+  }
 
   int64_t const dlen = idx2 - idx1 - 1;
 
@@ -338,8 +350,71 @@ int64_t ilffNLines(ILFFFile* ilff_) {
 
 int ilffReindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
-  
+
+  int rcs2 = fseek(ilff->indexFile, 0, SEEK_SET);
+  int rct2 = ftruncate(fileno(ilff->indexFile), 0);
+
+  int rcs1 = fseek(ilff->mainFile, 0, SEEK_SET);
+
+  if (!(rcs1 == 0 && rcs2 == 0 && rct2 == 0)) {
+    return -1;
+  }
+
+  ilff->nlines = 0;
+  ilff->idx = 0;
+
+  size_t nbuf = 256;
+  ssize_t nrd = 0;
+  char *buffer = malloc(nbuf);
+
+  while (1) {
+    nrd = getline(&buffer, &nbuf, ilff->mainFile);
+    if (nrd <= 0) {
+      break;
+    }
+    ++ilff->nlines;
+    ilff->idx += nrd;
+    if (buffer[nrd-1] != '\n') {
+      ilff->idx += 1;
+    }
+    writeindex(ilff, ilff->idx);
+    if (buffer[nrd-1] != '\n') {
+      break;
+    }
+  }
+
+  free(buffer);
+
   return 0;
+}
+
+int ilffDumpindex(ILFFFile *ilff_) {
+  ILFF* ilff = (ILFF*) ilff_;
+
+  ILFF_addr_t ln = 0, idx1 = 0, idx2 = 0, n = 0;
+
+  n = get_nlines(ilff);
+
+  fseek(ilff->indexFile, 0, SEEK_SET);
+
+  for ( ; ln < n; ++ln) {
+    idx1 = idx2;
+    readint(ilff->indexFile, &idx2);
+    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", ln, idx1, idx2, idx2 - idx1);
+  }
+
+  return 0;
+}
+
+int ilffTruncate(ILFFFile* ilff_) {
+  ILFF* ilff = (ILFF*) ilff_;
+  int rcs1 = fseek(ilff->mainFile, 0, SEEK_SET);
+  int rct1 = ftruncate(fileno(ilff->mainFile), 0);
+  int rcs2 = fseek(ilff->indexFile, 0, SEEK_SET);
+  int rct2 = ftruncate(fileno(ilff->indexFile), 0);
+  ilff->nlines = 0;
+  ilff->idx = 0;
+  return rcs1 == 0 && rcs2 == 0 && rct1 == 0 && rct2 == 0 ? 0 : -1;
 }
 
 int ilffFlush(ILFFFile* ilff_) {
