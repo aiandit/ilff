@@ -16,7 +16,7 @@ class TestCILFFWrites1(unittest.TestCase):
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.close()
 
-    def test_02_append(self):
+    def test_02_write(self):
         ilf = ilff.CILFFFile('test.ilff', mode='w', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
@@ -45,8 +45,15 @@ class TestCILFFWrites1(unittest.TestCase):
             print('L:', i, l, self.lines[i])
         ilf.close()
 
+    def test_06_get4(self):
+        ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
+        lns1 = ilf.getlinestxt(0, 3)
+        lns = ilf.getlines(0, 3)
+        self.assertTrue(lns == self.lines)
+        ilf.close()
 
-class TestILFFWrites2(unittest.TestCase):
+
+class TestCILFFWrites2(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -80,8 +87,18 @@ class TestILFFWrites2(unittest.TestCase):
             self.assertTrue(l == self.lines[i % 3])
         ilf.close()
 
+    def test_05_getlns(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        lns1 = ilf.getlinestxt(0, 3)
+        lns = ilf.getlines(0, 3)
+        print(ilf.nlines())
+        self.assertTrue(lns == self.lines)
+        lns = ilf.getlines(3, 3)
+        self.assertTrue(lns == self.lines)
+        ilf.close()
 
-class TestILFFWrites3(unittest.TestCase):
+
+class TestCILFFWrites3(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -114,7 +131,7 @@ class TestILFFWrites3(unittest.TestCase):
         ilf.close()
 
 
-class TestILFFWrites4(unittest.TestCase):
+class TestCILFFWrites4(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 

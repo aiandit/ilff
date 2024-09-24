@@ -32,10 +32,11 @@ class TestILFFWrites1(unittest.TestCase):
         self.assertTrue(os.path.exists('test.ilff'))
         ilf.close()
 
-    def test_02_append(self):
+    def test_02_write(self):
         ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
+        self.assertTrue(ilf.nlines() == 3)
         ilf.dumpindex()
         ilf.close()
 
@@ -44,15 +45,18 @@ class TestILFFWrites1(unittest.TestCase):
         l1 = ilf.getline(0)
         print('L1:', l1)
         self.assertTrue(l1 == 'aaa')
+        self.assertTrue(ilf.nlines() == 3)
         ilf.close()
 
     def test_04_get2(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
         ilf.dumpindex()
+        self.assertTrue(ilf.nlines() == 3)
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
             self.assertTrue(l == self.lines[i])
+        self.assertTrue(ilf.nlines() == 3)
         ilf.close()
 
     def test_05_get3(self):
@@ -61,6 +65,13 @@ class TestILFFWrites1(unittest.TestCase):
             l = ilf.getline(i)
             self.assertTrue(l == self.lines[i])
             print('L:', i, l, self.lines[i])
+        ilf.close()
+
+    def test_06_get4(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        lns1 = ilf.getlinestxt(0, 3)
+        lns = ilf.getlines(0, 3)
+        self.assertTrue(lns == self.lines)
         ilf.close()
 
 
@@ -94,6 +105,16 @@ class TestILFFWrites2(unittest.TestCase):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i % 3], l == self.lines[i % 3])
             self.assertTrue(l == self.lines[i % 3])
+        ilf.close()
+
+    def test_05_getlns(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        lns1 = ilf.getlinestxt(0, 3)
+        lns = ilf.getlines(0, 3)
+        print(ilf.nlines())
+        self.assertTrue(lns == self.lines)
+        lns = ilf.getlines(3, 3)
+        self.assertTrue(lns == self.lines)
         ilf.close()
 
 
