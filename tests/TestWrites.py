@@ -23,7 +23,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError):
             s.split(2)
 
-class TestILFFWrites(unittest.TestCase):
+class TestILFFWrites1(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -36,7 +36,7 @@ class TestILFFWrites(unittest.TestCase):
         ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
         print(*map(lambda x: ilf.appendLine(x), self.lines))
         self.assertTrue(os.path.exists('test.ilff'))
-        ilf.dumpIndex()
+        ilf.dumpindex()
         ilf.close()
 
     def test_03_get1(self):
@@ -48,7 +48,7 @@ class TestILFFWrites(unittest.TestCase):
 
     def test_04_get2(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
-        ilf.dumpIndex()
+        ilf.dumpindex()
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
@@ -64,7 +64,7 @@ class TestILFFWrites(unittest.TestCase):
         ilf.close()
 
 
-class TestILFFWrites(unittest.TestCase):
+class TestILFFWrites2(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -97,7 +97,7 @@ class TestILFFWrites(unittest.TestCase):
         ilf.close()
 
 
-class TestILFFWrites2(unittest.TestCase):
+class TestILFFWrites3(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -130,7 +130,7 @@ class TestILFFWrites2(unittest.TestCase):
         ilf.close()
 
 
-class TestILFFWrites3(unittest.TestCase):
+class TestILFFWrites4(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 
@@ -162,7 +162,7 @@ class TestILFFWrites3(unittest.TestCase):
         ilf.close()
 
 
-class TestILFFWrites3(unittest.TestCase):
+class TestILFFWrites5(unittest.TestCase):
 
     lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
 

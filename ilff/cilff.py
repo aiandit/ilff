@@ -107,7 +107,7 @@ class CILFFFile:
             self.lib.ilffClose(self.handle)
             self.handle = 0
 
-    def dumpIndex(self):
+    def dumpindex(self):
         return self.lib.ilffDumpindex(self.handle)
 
     def buildindex(self):

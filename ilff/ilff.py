@@ -222,13 +222,13 @@ class ILFFFile:
         ln = self.file.read(len)
         return len
 
-    def getIndex(self):
+    def getindex(self):
         for i in range(3):
             self.idxfile.seek(i*self.indexBytes)
             idx = readindex()
             # print('%d: %d - %d' % (i, idx, len))
 
-    def dumpIndex(self):
+    def dumpindex(self):
         print('Number of Lines: ', self.get_nlines())
         for i in range(self.get_nlines()):
             (idx1, idx2) = self.readindex(i)
