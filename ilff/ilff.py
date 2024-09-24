@@ -289,8 +289,11 @@ class ILFFGetLines:
         else:
             return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs]
 
-    def get_nlines(self):
+    def nlines(self):
         if self.ilff is not None:
             return self.ilff.get_nlines()
         else:
             return len(open(self.fname, mode='r', encoding=self.encoding).read().split('\n'))
+
+    def get_nlines(self):
+        return self.nlines()
