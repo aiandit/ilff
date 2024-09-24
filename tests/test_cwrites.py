@@ -45,11 +45,16 @@ class TestCILFFWrites1(unittest.TestCase):
             print('L:', i, l, self.lines[i])
         ilf.close()
 
-    def test_06_get4(self):
+    def test_06_getlns(self):
         ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
-        lns1 = ilf.getlinestxt(0, 3)
         lns = ilf.getlines(0, 3)
         self.assertTrue(lns == self.lines)
+        ilf.close()
+
+    def test_07_getlnstxt(self):
+        ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
+        lns = ilf.getlinestxt(0, 3)
+        self.assertTrue(lns == '\n'.join(self.lines))
         ilf.close()
 
 
@@ -95,6 +100,12 @@ class TestCILFFWrites2(unittest.TestCase):
         self.assertTrue(lns == self.lines)
         lns = ilf.getlines(3, 3)
         self.assertTrue(lns == self.lines)
+        ilf.close()
+
+    def test_06_getlnstxt(self):
+        ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
+        lns = ilf.getlinestxt(0, 6)
+        self.assertTrue(lns == '\n'.join(self.lines + self.lines))
         ilf.close()
 
 
