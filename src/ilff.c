@@ -328,8 +328,8 @@ int64_t ilffNLines(ILFFFile* ilff_) {
   return get_nlines(ilff);
 }
 
-int ilffReindex(ILFFFile *) {
-  //  ILFF* ilff = (ILFF*) ilff_;
+int ilffReindex(ILFFFile *ilff_) {
+  ILFF* ilff = (ILFF*) ilff_;
   return 0;
 }
 
