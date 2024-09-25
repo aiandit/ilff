@@ -23,7 +23,12 @@ print(l2[0:3])
 l1 = []
 
 t0 = time.time()
-l1 = il.getlinestxt(start, ln)
+try:
+    l1 = il.getlinestxt(start, ln)
+    assert(False)
+except:
+    l1 = ''
+    pass
 print('Text:', l1, len(l1))
 l1 = l1.split('\n')
 print('Text:', l1, len(l1))

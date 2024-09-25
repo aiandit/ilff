@@ -1,8 +1,5 @@
 *~
 __pycache__
-*.csv
-*.idx
-*.len
 build/
 dist/
 *.egg-info/
