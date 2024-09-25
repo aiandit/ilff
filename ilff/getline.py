@@ -36,7 +36,6 @@ def run():
     for ln in args.line:
         l = il.getline(ln)
         of.write(l)
-        of.write('\n')
 
 
 if __name__ == "__main__":

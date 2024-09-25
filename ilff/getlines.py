@@ -74,9 +74,7 @@ def run():
     else:
         of = sys.stdout
 
-    of.write('\n'.join(lns))
-    if n > 0:
-        of.write('\n')
+    of.write(''.join(lns))
 
 
 if __name__ == "__main__":

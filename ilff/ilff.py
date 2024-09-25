@@ -147,13 +147,10 @@ class ILFFFile:
         while True:
             s = self.file.readline()
             llen = len(s)
-            if llen > 0:
-                if s[llen-1] != 10:
-                    llen += 1
-            newidx = newidx + llen
-            self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
             if llen == 0:
                 break
+            newidx = newidx + llen
+            self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idxfile.flush()
 
     def fromfile(self, infile, empty=''):
@@ -190,7 +187,7 @@ class ILFFFile:
         if len == 0:
             return ""
         self.file.seek(idx)
-        ln = self.file.read(len-1)
+        ln = self.file.read(len)
         return ln.decode(self.encoding)
 
     def getlines(self, start, nlines):
@@ -201,8 +198,7 @@ class ILFFFile:
         for k in range(nlines):
             (idx, idx2) = self.readindex(start + k)
             len = idx2 - idx
-            ln = self.file.read(len-1).decode(self.encoding)
-            d = self.file.read(1)
+            ln = self.file.read(len).decode(self.encoding)
             res.append(ln)
         return res
 
@@ -215,12 +211,9 @@ class ILFFFile:
         (idxs, idxs2) = self.readindex(start)
         (idxe, idxe2) = self.readindex(start+nlines-1)
         self.file.seek(idxs)
-        ramount = idxe2 - idxs - 1
+        ramount = idxe2 - idxs
         ln = b''
-        try:
-            ln = self.file.read(ramount)
-        except BaseException as e:
-            print('ilff.getlinestxt: read failed %d-%d: %s' % (idxs, ramount, e))
+        ln = self.file.read(ramount)
         return ln.decode(self.encoding)
 
     def tail(self, lnnum):

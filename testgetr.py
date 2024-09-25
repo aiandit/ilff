@@ -20,7 +20,7 @@ t1 = time.time()
 print(t1-t0)
 
 t0 = time.time()
-l2 = "\n".join(open(fname).read().split('\n')[start:start+ln])
+l2 = "\n".join(open(fname).read().split('\n')[start:start+ln]) + '\n'
 t1 = time.time()
 
 print(t1-t0)
