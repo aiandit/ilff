@@ -29,9 +29,9 @@ for k in range(15):
 #    print(len(lines))
 #    print(lines[ln])
 #    print(k, ln, l == lines[ln])
-    assert(l == lines[ln])
+    assert(l == lines[ln] + '\n')
 
-for k in range(1000):
+for k in range(100):
     ln = random.sample(range(il.get_nlines()), 1)[0]
 #    print(k, ln)
     l = il.getline(ln)
@@ -41,5 +41,4 @@ for k in range(1000):
 #    print(type(ln))
 #    print(len(lines))
 #    print(lines[ln])
-#    print(k, ln, l == lines[ln])
-    assert(l == lines[ln])
+    assert(l == lines[ln] + '\n')

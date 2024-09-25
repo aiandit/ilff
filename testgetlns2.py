@@ -21,6 +21,7 @@ print(t1-t0)
 
 t0 = time.time()
 l2 = open(fname).read().split('\n')[start:start+ln]
+l2 = [ l + '\n' for l in l2 ]
 t1 = time.time()
 
 print(t1-t0)

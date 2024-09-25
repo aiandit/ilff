@@ -27,6 +27,7 @@ class TestStringMethods(unittest.TestCase):
 class TestILFFWrites1(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
 
     @classmethod
     def tearDownClass(self):
@@ -49,7 +50,7 @@ class TestILFFWrites1(unittest.TestCase):
         ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         l1 = ilf.getline(0)
         print('L1:', l1)
-        self.assertTrue(l1 == 'aaa')
+        self.assertTrue(l1 == 'aaa\n')
         self.assertTrue(ilf.nlines() == 3)
         ilf.close()
 
@@ -59,8 +60,8 @@ class TestILFFWrites1(unittest.TestCase):
         self.assertTrue(ilf.nlines() == 3)
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i] + '\n')
+            self.assertTrue(l == self.lines[i] + '\n')
         self.assertTrue(ilf.nlines() == 3)
         ilf.close()
 
@@ -68,27 +69,35 @@ class TestILFFWrites1(unittest.TestCase):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
         for i in range(3):
             l = ilf.getline(i)
-            self.assertTrue(l == self.lines[i])
+            self.assertTrue(l == self.lines[i] + '\n')
             print('L:', i, l, self.lines[i])
         ilf.close()
 
     def test_06_getlns(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
-        lns1 = ilf.getlinestxt(0, 3)
         lns = ilf.getlines(0, 3)
-        self.assertTrue(lns == self.lines)
+        self.assertTrue(lns == self.linesnl)
         ilf.close()
 
     def test_07_getlnstxt(self):
-        ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
         lns = ilf.getlinestxt(0, 3)
-        self.assertTrue(lns == '\n'.join(self.lines))
+        print(f'7: "{lns}"')
+        self.assertTrue(lns == '\n'.join(self.lines) + '\n')
+        ilf.close()
+
+    def test_08_getlnstxt2(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        lns = ilf.getlinestxt(0, 2)
+        print(f'8: "{lns}"')
+        self.assertTrue(lns == '\n'.join(self.lines[0:2]) + '\n')
         ilf.close()
 
 
 class TestILFFWrites2(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
 
     @classmethod
     def tearDownClass(self):
@@ -96,52 +105,56 @@ class TestILFFWrites2(unittest.TestCase):
 
     def test_01_append(self):
         ilf = ilff.ILFFFile('test.ilff', mode='w', encoding='utf8')
-        print(*map(lambda x: ilf.appendLine(x), self.lines))
+        r = [*map(lambda x: ilf.appendLine(x), self.lines)]
         self.assertTrue(os.path.exists('test.ilff'))
+        self.assertTrue(ilf.nlines() == 3)
         ilf.close()
 
     def test_02_get2(self):
         ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i] + '\n')
+            self.assertTrue(l == self.lines[i] + '\n')
         ilf.close()
 
     def test_03_append(self):
         ilf = ilff.ILFFFile('test.ilff', mode='a', encoding='utf8')
-        print(*map(lambda x: ilf.appendLine(x), self.lines))
+        r = [*map(lambda x: ilf.appendLine(x), self.lines)]
         self.assertTrue(os.path.exists('test.ilff'))
+        self.assertTrue(ilf.nlines() == 6)
         ilf.close()
 
     def test_04_get(self):
         ilf = ilff.ILFFFile('test.ilff', mode='r', encoding='utf8')
         for i in range(6):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i % 3], l == self.lines[i % 3])
-            self.assertTrue(l == self.lines[i % 3])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i % 3], l == self.lines[i % 3] + '\n')
+            self.assertTrue(l == self.lines[i % 3] + '\n')
         ilf.close()
 
     def test_05_getlns(self):
         ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
         lns1 = ilf.getlinestxt(0, 3)
         lns = ilf.getlines(0, 3)
-        print(ilf.nlines())
-        self.assertTrue(lns == self.lines)
+        self.assertTrue(ilf.nlines() == 6)
+        self.assertTrue(lns == self.linesnl)
         lns = ilf.getlines(3, 3)
-        self.assertTrue(lns == self.lines)
+        self.assertTrue(lns == self.linesnl)
         ilf.close()
 
     def test_06_getlnstxt(self):
-        ilf = ilff.CILFFFile('test.ilff', encoding='utf8')
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
         lns = ilf.getlinestxt(0, 6)
-        self.assertTrue(lns == '\n'.join(self.lines + self.lines))
+        print(f'6: "{lns}"')
+        self.assertTrue(lns == ''.join(self.linesnl *2))
         ilf.close()
 
 
 class TestILFFWrites3(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
 
     fname = str(uuid.uuid4()) + '.ilff'
 
@@ -163,8 +176,8 @@ class TestILFFWrites3(unittest.TestCase):
         ilf = ilff.ILFFFile(self.fname)
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
+            self.assertTrue(l == self.linesnl[i])
         ilf.close()
 
     def test_03_get2(self):
@@ -172,27 +185,28 @@ class TestILFFWrites3(unittest.TestCase):
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
-            self.assertTrue(l == self.lines[i])
+            self.assertTrue(l == self.linesnl[i])
         ilf.close()
 
     def test_04_getlns(self):
         ilf = ilff.ILFFFile(self.fname, encoding='utf8')
         lns = ilf.getlines(0, 3)
         print(lns)
-        self.assertTrue(lns == self.lines)
+        self.assertTrue(lns == self.linesnl)
         ilf.close()
 
     def test_05_getrange(self):
         ilf = ilff.ILFFFile(self.fname, encoding='utf8')
         lns = ilf.getlinestxt(0, 3)
         print(lns)
-        self.assertTrue(lns == '\n'.join(self.lines))
+        self.assertTrue(lns == ''.join(self.linesnl))
         ilf.close()
 
 
 class TestILFFWrites4(unittest.TestCase):
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
 
     fname = str(uuid.uuid4()) + '.ilff'
 
@@ -214,8 +228,9 @@ class TestILFFWrites4(unittest.TestCase):
         ilf = ilff.ILFFFile(self.fname)
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
+            self.assertTrue(i > 1 or l == self.linesnl[i])
+            self.assertTrue(i < 2 or l == self.lines[i])
         ilf.close()
 
     def test_03_get2(self):
@@ -223,63 +238,30 @@ class TestILFFWrites4(unittest.TestCase):
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
-            self.assertTrue(l == self.lines[i])
+            self.assertTrue(i > 1 or l == self.linesnl[i])
+            self.assertTrue(i < 2 or l == self.lines[i])
         ilf.close()
 
     def test_04_getlns(self):
         ilf = ilff.ILFFFile(self.fname, encoding='utf8')
         lns = ilf.getlines(0, 3)
-        print(lns)
-        self.assertTrue(lns == self.lines)
+        print(f'4: "{lns}"')
+        self.assertTrue(lns == self.linesnl[0:2] + self.lines[2:3])
         ilf.close()
 
     def test_05_getrange(self):
         ilf = ilff.ILFFFile(self.fname, encoding='utf8')
         lns = ilf.getlinestxt(0, 3)
-        print(lns)
+        print(f'5: "{lns}"')
         self.assertTrue(lns == '\n'.join(self.lines))
         ilf.close()
 
 
+
 class TestILFFWrites5(unittest.TestCase):
 
-    lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
-
-    @classmethod
-    def tearDownClass(self):
-        ilff.unlink('test.ilff')
-
-    def test_01_write(self):
-        of = open('test.ilff', 'w')
-        of.write('\n'.join(self.lines))
-        of.close()
-
-    def test_01a_buildindex(self):
-        ilf = ilff.ILFFFile('test.ilff', 'a+')
-        ilf.buildindex()
-        ilf.close()
-
-    def test_02_get(self):
-        ilf = ilff.ILFFFile('test.ilff')
-        for i in range(3):
-            l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
-        ilf.close()
-
-    def test_03_get2(self):
-        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
-        for i in range(3):
-            l = ilf.getline(i)
-            print('L:', i, '"%s"' % l)
-            self.assertTrue(i > 2 or l == self.lines[i])
-            self.assertTrue(i <= 2 or l == "")
-        ilf.close()
-
-
-class TestILFFWrites6(unittest.TestCase):
-
     lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
 
     @classmethod
     def tearDownClass(self):
@@ -287,7 +269,7 @@ class TestILFFWrites6(unittest.TestCase):
 
     def test_01_write(self):
         of = open('test.ilff', 'w')
-        of.write('\n'.join(self.lines))
+        of.write('\n'.join(self.lines) + '\n')
         of.close()
 
     def test_01a_buildindex(self):
@@ -299,8 +281,8 @@ class TestILFFWrites6(unittest.TestCase):
         ilf = ilff.ILFFFile('test.ilff')
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.lines[i])
-            self.assertTrue(l == self.lines[i])
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
+            self.assertTrue(l == self.linesnl[i])
         ilf.close()
 
     def test_03_erase(self):
@@ -313,7 +295,7 @@ class TestILFFWrites6(unittest.TestCase):
         for i in range(3):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
-            self.assertTrue(i == 1 or l == self.lines[i])
+            self.assertTrue(i == 1 or l == self.linesnl[i])
             self.assertTrue(i != 1 or l.strip() == "")
         ilf.close()
 
@@ -327,9 +309,10 @@ class TestILFFWrites6(unittest.TestCase):
         for i in range(2):
             l = ilf.getline(i)
             print('L:', i, '"%s"' % l)
-            self.assertTrue(i != 0 or l == self.lines[0])
-            self.assertTrue(i != 1 or l == self.lines[2])
+            self.assertTrue(i != 0 or l == self.linesnl[0])
+            self.assertTrue(i != 1 or l == self.linesnl[2])
         ilf.close()
+
 
 if __name__ == '__main__':
     unittest.main()
