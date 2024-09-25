@@ -1,5 +1,7 @@
 import os, sys, shutil
 
+from .ilff import ILFFError
+
 from ctypes import CDLL, POINTER, c_int, c_long, c_char_p, c_void_p
 
 c_long_p = POINTER(c_long)
@@ -65,7 +67,7 @@ def getLib():
     return lib
 
 
-class CILFFError(BaseException):
+class CILFFError(ILFFError):
     def __init__(self, s):
         super().__init__(f'cILFF operation failed: {s}')
 

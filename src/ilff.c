@@ -274,7 +274,7 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
     return -1;
   }
 
-  int64_t const dlen = idx2 - idx1 - 1;
+  int64_t const dlen = idx2 - idx1;
 
   if (data == 0) {
     *nChars = dlen;
@@ -286,41 +286,74 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   fseek(ilff->mainFile, idx1, SEEK_SET);
 
   size_t nrd = fread(data, 1, rlen, ilff->mainFile);
-  *nChars = nrd;
+  if (nrd > 0 && data[nrd - 1] == '\n') {
+    *nChars = nrd - 1;
+    data[nrd - 1] = 0;
+  } else {
+    *nChars = nrd;
+  }
 
   return 0;
 }
 
 int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** data, int64_t* lengths) {
+  ILFF* ilff = (ILFF*) ilff_;
 
   if (lengths == 0) return -1;
 
-  int64_t i = 0;
+  int res = 0;
+
+  ILFF_addr_t* index = malloc((N + 1)*ILFF_ADDRSZ);
+
+  int rci = 0;
+  if (lnnum > 0) {
+    rci = ilffGetIndex(ilff_, lnnum-1, N+1, index);
+  } else {
+    index[0] = 0;
+    rci = ilffGetIndex(ilff_, lnnum, N, index + 1);
+  }
+  if (rci != 0) {
+    free(index);
+    return -1;
+  }
 
   if (data == 0) {
-    for ( ; i < N; ++i) {
-      int rcl = ilffGetLine(ilff_, lnnum + i, 0, lengths + i);
-
-      if (rcl != 0) {
-	break;
-      }
+    for (int64_t i = 0; i < N; ++i) {
+      lengths[i] = index[i+1] - index[i];
     }
+    free(index);
     return 0;
   }
 
-  for ( ; i < N; ++i) {
-    if (*data == 0) {
+  int rcr = 0, rcs = 0;
+  rcs = fseek(ilff->mainFile, index[0], SEEK_SET);
+
+  for (int64_t i = 0; i < N; ++i) {
+
+    int64_t const dlen = index[i+1] - index[i];
+    int64_t const rlen = min(lengths[i], dlen);
+
+    rcr = fread(data[i], 1, rlen, ilff->mainFile);
+    lengths[i] = rcr;
+
+    if (rcr != rlen) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to read file at line %ld: %s\n",
+	      lnnum + i, strerror(errno));
+      res = -1;
       break;
     }
 
-    int rcl = ilffGetLine(ilff_, lnnum + i, data[i], lengths + i);
-
-    if (rcl != 0) {
-      break;
+    if (rcr < dlen) {
+      rcs = fseek(ilff->mainFile, index[i], SEEK_SET);
+    } else if (data[i][dlen-1] == '\n') {
+      data[i][dlen-1] = 0;
+      lengths[i] = rcr - 1;
     }
   }
 
-  return 0;
+  free(index);
+  return res;
 }
 
 int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t* nChars) {
@@ -329,12 +362,12 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   if (nChars == 0) return -1;
 
   ILFF_addr_t idx1, idx2;
-  readindex(ilff, lnnum - 1, &idx1, &idx2);
-
   ILFF_addr_t idx3, idx4;
+
+  readindex(ilff, lnnum - 1, &idx1, &idx2);
   readindex(ilff, lnnum + N - 1, &idx3, &idx4);
 
-  int64_t const dlen = idx4 - idx1 - 1;
+  int64_t const dlen = idx4 - idx1;
 
   if (data == 0) {
     *nChars = dlen;
@@ -345,8 +378,40 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
 
   fseek(ilff->mainFile, idx1, SEEK_SET);
 
-  size_t nrd = fread(data, 1, rlen, ilff->mainFile);
-  *nChars = nrd;
+  size_t rcr = fread(data, 1, rlen, ilff->mainFile);
+
+  if (rcr < dlen) {
+    *nChars = rcr;
+  } else if (data[dlen-1] == '\n') {
+    data[dlen-1] = 0;
+    *nChars = dlen - 1;
+  }
+
+  return 0;
+}
+
+int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index) {
+  ILFF* ilff = (ILFF*) ilff_;
+
+  if (lnnum < 0 || N < 0 || index == 0) {
+    return -1;
+  }
+
+  int rcs = fseek(ilff->indexFile, lnnum*ILFF_ADDRSZ, SEEK_SET);
+  if (rcs != 0) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to seek index file to offset %ld: %s\n",
+	    lnnum*ILFF_ADDRSZ, strerror(errno));
+    return -2;
+  }
+
+  int rcr = fread(index, ILFF_ADDRSZ, N, ilff->indexFile);
+  if (rcr != N) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to read from index file at offset %ld: %s\n",
+	    ftell(ilff->indexFile), strerror(errno));
+    return rcr;
+  }
 
   return 0;
 }
@@ -382,9 +447,6 @@ int ilffReindex(ILFFFile *ilff_) {
     }
     ++ilff->nlines;
     ilff->idx += nrd;
-    if (buffer[nrd-1] != '\n') {
-      ilff->idx += 1;
-    }
     writeindex(ilff, ilff->idx);
     if (buffer[nrd-1] != '\n') {
       break;

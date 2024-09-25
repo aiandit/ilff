@@ -1,5 +1,9 @@
 import os, sys, shutil, io
 
+class ILFFError(BaseException):
+    def __init__(self, s):
+        super().__init__(f'cILFF operation failed: {s}')
+
 class ILFFFile:
 
     fname = ''
@@ -52,6 +56,8 @@ class ILFFFile:
             print(f'error: {fname} does not appear to be an indexed file')
 
     def remove(self):
+        if type(self) == str:
+            self = ILFFFile(self)
         self.close()
         os.remove(self.fname)
         os.remove(self.idxfilen)
@@ -73,8 +79,8 @@ class ILFFFile:
             idxdata = file.read(self.indexBytes)
             if len(idxdata) != self.indexBytes:
                 if lnnum*self.indexBytes > file.seek(0, os.SEEK_END):
-                    print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
-                          (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
+                    raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
+                                    (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
                 idx1 = 2**30
             else:
                 idx1 = int(0).from_bytes(idxdata, 'little')
@@ -84,7 +90,8 @@ class ILFFFile:
         idxdata = file.read(self.indexBytes)
         if len(idxdata) != self.indexBytes:
             if lnnum*self.indexBytes > file.seek(0, os.SEEK_END):
-                print('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' % (lnnum, file.seek(0, os.SEEK_END)/4))
+                raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
+                                (lnnum, file.seek(0, os.SEEK_END)/4))
             idx2 = 2**30
         else:
             idx2 = int(0).from_bytes(idxdata, 'little')
@@ -259,6 +266,11 @@ class ILFFFile:
             ind, self.fname, ln, bts, self.file.tell()))
         self.file.write(bts[0:ln])
         self.file.flush()
+
+
+def unlink(name):
+    return ILFFFile.remove(name)
+
 
 class ILFFGetLines:
     ilff = None

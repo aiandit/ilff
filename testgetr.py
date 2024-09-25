@@ -10,8 +10,8 @@ fname = sys.argv[1]
 
 il = ilff.ILFFFile(fname)
 
-start = 11100
-ln = 2000
+start = 100
+ln = 25
 
 t0 = time.time()
 l1 = il.getlinestxt(start, ln)

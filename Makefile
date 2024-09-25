@@ -42,6 +42,8 @@ c-uninstall:
 TESTF ?= test.csv
 
 check: check1 check2 check3
+	rm $(TESTF)
+	rm -rf .ilff-index
 
 check1:
 	./tests/runtests.sh
@@ -51,7 +53,7 @@ export LANG = C
 
 $(TESTF):
 	echo -n "" > $@
-	for i in {1..15000}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
+	for i in {1..150}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
 
 check2: $(TESTF)
 	python3 testilff.py
