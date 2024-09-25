@@ -21,8 +21,6 @@ def run():
         of = sys.stdout
 
     of.write(lns)
-    if n > 0:
-        of.write('\n')
 
 
 if __name__ == "__main__":

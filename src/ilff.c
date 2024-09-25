@@ -286,12 +286,7 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   fseek(ilff->mainFile, idx1, SEEK_SET);
 
   size_t nrd = fread(data, 1, rlen, ilff->mainFile);
-  if (nrd > 0 && data[nrd - 1] == '\n') {
-    *nChars = nrd - 1;
-    data[nrd - 1] = 0;
-  } else {
-    *nChars = nrd;
-  }
+  *nChars = nrd;
 
   return 0;
 }
@@ -346,10 +341,8 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
     if (rcr < dlen) {
       rcs = fseek(ilff->mainFile, index[i], SEEK_SET);
-    } else if (data[i][dlen-1] == '\n') {
-      data[i][dlen-1] = 0;
-      lengths[i] = rcr - 1;
     }
+
   }
 
   free(index);
@@ -379,13 +372,7 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   fseek(ilff->mainFile, idx1, SEEK_SET);
 
   size_t rcr = fread(data, 1, rlen, ilff->mainFile);
-
-  if (rcr < dlen) {
-    *nChars = rcr;
-  } else if (data[dlen-1] == '\n') {
-    data[dlen-1] = 0;
-    *nChars = dlen - 1;
-  }
+  *nChars = rcr;
 
   return 0;
 }
