@@ -1,3 +1,10 @@
+ilff (0.7.2-1) fionec-unstable; urgency=medium
+
+  * Add ilffGetIndex, unlink, less exports, Exceptions on invalid seek
+  * New version 0.7.2
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 25 Sep 2024 11:09:16 +0200
+
 ilff (0.7.0-1) fionec-unstable; urgency=medium
 
   * Enhance C impl
