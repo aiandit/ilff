@@ -1,3 +1,11 @@
+ilff (0.7.4-1) fionec-unstable; urgency=medium
+
+  * Add C version of GetLines class
+  * Change: return entire lines, do not omit separator \n
+  * New version 0.7.4
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 25 Sep 2024 14:49:05 +0200
+
 ilff (0.7.2-1) fionec-unstable; urgency=medium
 
   * Add ilffGetIndex, unlink, less exports, Exceptions on invalid seek
