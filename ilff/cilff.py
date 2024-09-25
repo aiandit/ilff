@@ -184,3 +184,25 @@ class CILFFFile:
         self.lib.ilffGetRange(self.handle, start, nlines, bln, rlen)
         tln = bln[0:rlen.value].decode(self.encoding)
         return tln
+
+
+class CILFFGetLines:
+    ilff = None
+
+    def __init__(self, fname, mode='r', encoding='utf8'):
+        self.ilff = CILFFFile(fname, mode=mode, encoding=encoding)
+
+    def getlines(self, offs, ln):
+        return self.ilff.getlines(offs, ln)
+
+    def getlinestxt(self, offs, ln):
+        return self.ilff.getlinestxt(offs, ln)
+
+    def getline(self, offs):
+        return self.ilff.getline(offs, ln)
+
+    def nlines(self):
+        return self.ilff.get_nlines()
+
+    def get_nlines(self):
+        return self.nlines()
