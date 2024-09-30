@@ -31,7 +31,7 @@ class ILFFGetLines:
         if self.ilff is not None:
             return self.ilff.getlines(offs, ln)
         else:
-            return self.lines[offs:offs+ln]
+            return [l + '\n' for l in self.lines[offs:offs+ln]]
 
     def getlinestxt(self, offs, ln):
         if self.ilff is not None:
@@ -42,15 +42,15 @@ class ILFFGetLines:
 
     def getline(self, offs):
         if self.ilff is not None:
-            return self.ilff.getline(offs, ln)
+            return self.ilff.getline(offs)
         else:
-            return self.lines[offs]
+            return self.lines[offs] + '\n'
 
     def nlines(self):
         if self.ilff is not None:
             return self.ilff.get_nlines()
         else:
-            return len(self.lines)
+            return len(self.lines) - 1
 
     def get_nlines(self):
         return self.nlines()
