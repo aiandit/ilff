@@ -370,7 +370,7 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   ILFF_addr_t idx1, idx2;
   ILFF_addr_t idx3, idx4;
 
-  readindex(ilff, lnnum - 1, &idx1, &idx2);
+  readindex(ilff, lnnum,         &idx1, &idx2);
   readindex(ilff, lnnum + N - 1, &idx3, &idx4);
 
   int64_t const dlen = idx4 - idx1;
