@@ -51,6 +51,8 @@ check1:
 SHELL = bash
 export LANG = C
 
+test-csv: $(TESTF)
+
 $(TESTF):
 	echo -n "" > $@
 	for i in {1..150}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
@@ -63,7 +65,11 @@ check2: $(TESTF)
 	python3 testgetlns.py $(TESTF)
 	python3 testgetlns2.py $(TESTF)
 	python3 testgetlns3.py $(TESTF)
+	python3 testgetlns3.py ilff/ilff.py
 	python3 testgetlns4.py $(TESTF)
+	python3 testgetlns4.py ilff/ilff.py
+	python3 testgetlns5.py $(TESTF)
+	python3 testgetlnsnoilff.py $(TESTF)
 	python3 testgetlnsnoilff.py ilff/ilff.py
 
 check3: $(TESTF)

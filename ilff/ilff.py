@@ -13,6 +13,7 @@ class ILFFFile:
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
+    idxfile = None
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True):
 #        print('*** create: %s, append=%s' % (fname,append,))
@@ -55,6 +56,9 @@ class ILFFFile:
         else:
             print(f'error: {fname} does not appear to be an indexed file')
 
+    def __del__(self):
+        self.close()
+
     def remove(self):
         if type(self) == str:
             self = ILFFFile(self)
@@ -68,7 +72,8 @@ class ILFFFile:
 
     def close(self):
         self.file.close()
-        self.idxfile.close()
+        if self.idxfile:
+            self.idxfile.close()
 
     def readint(self, file, lnnum):
         if lnnum < 0:
@@ -263,46 +268,3 @@ class ILFFFile:
 
 def unlink(name):
     return ILFFFile.remove(name)
-
-
-class ILFFGetLines:
-    ilff = None
-
-    def __init__(self, fname, mode='r', encoding='utf8'):
-        # print('*** create: %s, append=%s' % (fname,append,))
-        self.ilff = ILFFFile(fname, mode=mode, encoding=encoding)
-        if not self.ilff.isILFF:
-            print('Index not found, opening normally: %s' % (fname,))
-            self.ilff = None
-            self.fname = fname
-            self.mode = mode
-            self.encoding = encoding
-
-    def getlines(self, offs, ln):
-        if self.ilff is not None:
-            return self.ilff.getlines(offs, ln)
-        else:
-            return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs:offs+ln]
-
-    def getlinestxt(self, offs, ln):
-        if self.ilff is not None:
-            return self.ilff.getlinestxt(offs, ln)
-        else:
-            ifile = open(self.fname, mode='r', encoding=self.encoding)
-            lines = ifile.read().split('\n')[offs:offs+ln]
-            return '\n'.join(lines)
-
-    def getline(self, offs):
-        if self.ilff is not None:
-            return self.ilff.getline(offs, ln)
-        else:
-            return open(self.fname, mode='r', encoding=self.encoding).read().split('\n')[offs]
-
-    def nlines(self):
-        if self.ilff is not None:
-            return self.ilff.get_nlines()
-        else:
-            return len(open(self.fname, mode='r', encoding=self.encoding).read().split('\n'))
-
-    def get_nlines(self):
-        return self.nlines()
