@@ -93,6 +93,13 @@ class TestILFFWrites1(unittest.TestCase):
         self.assertTrue(lns == '\n'.join(self.lines[0:2]) + '\n')
         ilf.close()
 
+    def test_09_getlnstxt3(self):
+        ilf = ilff.ILFFFile('test.ilff', encoding='utf8')
+        lns = ilf.getlinestxt(1, 2)
+        print(f'8: "{lns}"')
+        self.assertTrue(lns == '\n'.join(self.lines[1:3]) + '\n')
+        ilf.close()
+
 
 class TestILFFWrites2(unittest.TestCase):
 
