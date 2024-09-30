@@ -1,3 +1,10 @@
+ilff (0.7.5-1) fionec-unstable; urgency=medium
+
+  * Merge ILFFGetlines classes into one, to own module
+  * New version 0.7.5
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 30 Sep 2024 09:22:56 +0200
+
 ilff (0.7.4-1) fionec-unstable; urgency=medium
 
   * Add C version of GetLines class
