@@ -13,6 +13,7 @@ class ILFFFile:
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
+    idxfile = None
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True):
 #        print('*** create: %s, append=%s' % (fname,append,))
@@ -55,6 +56,9 @@ class ILFFFile:
         else:
             print(f'error: {fname} does not appear to be an indexed file')
 
+    def __del__(self):
+        self.close()
+
     def remove(self):
         if type(self) == str:
             self = ILFFFile(self)
@@ -68,7 +72,8 @@ class ILFFFile:
 
     def close(self):
         self.file.close()
-        self.idxfile.close()
+        if self.idxfile:
+            self.idxfile.close()
 
     def readint(self, file, lnnum):
         if lnnum < 0:
