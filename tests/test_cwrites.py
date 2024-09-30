@@ -24,7 +24,7 @@ class TestCILFFWrites1(unittest.TestCase):
 
     def test_02_write(self):
         ilf = ilff.CILFFFile('test.ilff', mode='w', encoding='utf8')
-        print(*map(lambda x: ilf.appendLine(x), self.lines))
+        rc = [*map(lambda x: ilf.appendLine(x), self.lines)]
         self.assertTrue(os.path.exists('test.ilff'))
         self.assertTrue(ilf.nlines() == 3)
         ilf.close()
@@ -217,9 +217,9 @@ class TestCILFFWrites4(unittest.TestCase):
         ilf = ilff.CILFFFile(self.fname)
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
-            self.assertTrue(i > 1 or l == self.linesnl[i])
-            self.assertTrue(i < 2 or l == self.lines[i])
+            chck = l == self.linesnl[i] if i < 2 else l == self.lines[i]
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], chck)
+            self.assertTrue(chck)
         ilf.close()
 
     def test_03_get2(self):
