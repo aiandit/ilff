@@ -1,4 +1,4 @@
-import os, sys, shutil
+import os, sys, shutil, errno
 
 from .ilff import ILFFError
 
@@ -92,7 +92,8 @@ class CILFFFile:
         if nameenc is not None:
             self.nameenc = nameenc
         self.mode = mode
-        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc))
+        ilfferr = c_int()
+        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), ilfferr)
         if self.handle == 0:
             raise CILFFError('open')
 
@@ -184,25 +185,3 @@ class CILFFFile:
         self.lib.ilffGetRange(self.handle, start, nlines, bln, rlen)
         tln = bln[0:rlen.value].decode(self.encoding)
         return tln
-
-
-class CILFFGetLines:
-    ilff = None
-
-    def __init__(self, fname, mode='r', encoding='utf8'):
-        self.ilff = CILFFFile(fname, mode=mode, encoding=encoding)
-
-    def getlines(self, offs, ln):
-        return self.ilff.getlines(offs, ln)
-
-    def getlinestxt(self, offs, ln):
-        return self.ilff.getlinestxt(offs, ln)
-
-    def getline(self, offs):
-        return self.ilff.getline(offs, ln)
-
-    def nlines(self):
-        return self.ilff.get_nlines()
-
-    def get_nlines(self):
-        return self.nlines()
