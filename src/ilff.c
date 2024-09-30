@@ -322,6 +322,13 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
   int rcr = 0, rcs = 0;
   rcs = fseek(ilff->mainFile, index[0], SEEK_SET);
+  if (rcs != 0) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    index[0], lnnum, strerror(errno));
+    return -1;
+  }
+
 
   for (int64_t i = 0; i < N; ++i) {
 
@@ -341,6 +348,12 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
     if (rcr < dlen) {
       rcs = fseek(ilff->mainFile, index[i], SEEK_SET);
+      if (rcs != 0) {
+	fprintf(stderr,
+		"ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+		index[i], lnnum, strerror(errno));
+	return -1;
+      }
     }
 
   }
@@ -369,7 +382,13 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
 
   int64_t const rlen = min(*nChars, dlen);
 
-  fseek(ilff->mainFile, idx1, SEEK_SET);
+  int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
+  if (rcs != 0) {
+    fprintf(stderr,
+	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    idx1, lnnum, strerror(errno));
+    return -1;
+  }
 
   size_t rcr = fread(data, 1, rlen, ilff->mainFile);
   *nChars = rcr;
