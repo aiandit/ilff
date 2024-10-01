@@ -16,7 +16,7 @@ class ILFFFile:
     file = None
     idxfile = None
 
-    def __init__(self, fname, mode='r', encoding='utf8', symlinks=True):
+    def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True):
 #        print('*** create: %s, append=%s' % (fname,append,))
         self.fname = fname
         if encoding is not None:
@@ -56,9 +56,31 @@ class ILFFFile:
             self.idx = self.readindex(self._nlines-1)[1]
         else:
             print(f'error: {fname} does not appear to be an indexed file')
+        if check:
+            self.check()
 
     def __del__(self):
         self.close()
+
+    def check(self):
+        tdiff, stf = self.checkFileTimes()
+        tok = tdiff < self.maxmtimediff*2
+        iok = self.checkIndex(stf)
+        return tok and iok
+
+    def checkFileTimes(self, warn=True):
+        stf = os.stat(self.file.fileno())
+        sti = os.stat(self.idxfile.fileno())
+        if warn and stf.st_mtime - sti.st_mtime > self.maxmtimediff*2:
+            print(f'Warning: index file is outdated, consider reindexing {self.fname}')
+        return stf.st_mtime - sti.st_mtime, stf
+
+    def checkIndex(self, stf=None):
+        if stf is None:
+            stf = os.stat(self.file.fileno())
+        (idxn1, idxn) = self.readindex(self.nlines()-1)
+        if idxn != stf.st_size:
+            print(f'Main file is larger than last index. consider reindexing: {self.fname}')
 
     def remove(self):
         if type(self) == str:
@@ -138,9 +160,8 @@ class ILFFFile:
         self.idx = newidx
         self.file.write((txtdata + b'\n'))
         self._nlines += 1
-        stf = os.stat(self.file.fileno())
-        sti = os.stat(self.idxfile.fileno())
-        if stf.st_mtime - sti.st_mtime > self.maxmtimediff:
+        tdiff, _ = self.checkFileTimes(False)
+        if tdiff > self.maxmtimediff:
             self.idxfile.flush()
 
     def getIndexFile(self, fname):
