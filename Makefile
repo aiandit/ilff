@@ -51,11 +51,13 @@ check1:
 SHELL = bash
 export LANG = C
 
+TESTLNS = 150
+
 test-csv: $(TESTF)
 
 $(TESTF):
 	echo -n "" > $@
-	for i in {1..150}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
+	for i in {1..$(TESTLNS)}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
 
 check2: $(TESTF)
 	python3 testilff.py

@@ -157,7 +157,7 @@ class TestCILFFWrites3(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.CILFFFile(self.fname, 'a+')
+        ilf = ilff.CILFFFile(self.fname, 'a+', check=False)
         ilf.buildindex()
         ilf.close()
 
@@ -209,7 +209,7 @@ class TestCILFFWrites4(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.CILFFFile(self.fname, 'a+')
+        ilf = ilff.CILFFFile(self.fname, 'a+', check=False)
         ilf.buildindex()
         ilf.close()
 
