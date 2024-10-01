@@ -245,14 +245,14 @@ int ilffWrite(ILFFFile *ilff_, char const *data, int64_t len) {
 int ilffWriteLine(ILFFFile* ilff_, char const *data, int64_t len) {
   ILFF* ilff = (ILFF*) ilff_;
 
-  if (data[len-1] == '\n') {
-    --len;
+  fwrite(data, 1, len, ilff->mainFile);
+
+  if (data[len-1] != '\n') {
+    fputc('\n', ilff->mainFile);
+    ++len;
   }
 
-  fwrite(data, 1, len, ilff->mainFile);
-  fputc('\n', ilff->mainFile);
-
-  ilff->idx = ilff->idx + len + 1;
+  ilff->idx = ilff->idx + len;
   writeindex(ilff, ilff->idx);
 
   ++ilff->nlines;
