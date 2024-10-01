@@ -10,44 +10,47 @@ c_char_pp = POINTER(c_char_p)
 
 def configLib(lib):
 
-    lib.ilffOpen.argtypes = (c_char_p, c_char_p)
-    lib.ilffOpen.returntype = c_void_p
+    lib.ilffOpen.argtypes = (c_char_p, c_char_p, c_int)
+    lib.ilffOpen.restype = c_void_p
 
     lib.ilffClose.argtypes = (c_void_p,)
-    lib.ilffClose.returntype = c_int
+    lib.ilffClose.restype = c_int
 
     lib.ilffFlush.argtypes = (c_void_p,)
-    lib.ilffFlush.returntype = c_int
+    lib.ilffFlush.restype = c_int
 
     lib.ilffTruncate.argtypes = (c_void_p,)
-    lib.ilffTruncate.returntype = c_long
-
-    lib.ilffReindex.argtypes = (c_void_p,)
-    lib.ilffReindex.returntype = c_long
-
-    lib.ilffDumpindex.argtypes = (c_void_p,)
-    lib.ilffDumpindex.returntype = c_long
-
-    lib.ilffNLines.argtypes = (c_void_p,)
-    lib.ilffNLines.returntype = c_long
+    lib.ilffTruncate.restype = c_long
 
     lib.ilffWrite.argtypes = (c_void_p, c_char_p, c_long)
-    lib.ilffWrite.returntype = c_int
+    lib.ilffWrite.restype = c_int
 
     lib.ilffWriteLine.argtypes = (c_void_p, c_char_p, c_long)
-    lib.ilffWrite.returntype = c_int
+    lib.ilffWrite.restype = c_int
 
     lib.ilffGetLine.argtypes = (c_void_p, c_long, c_char_p, c_long_p)
-    lib.ilffGetLine.returntype = c_int
+    lib.ilffGetLine.restype = c_int
 
     lib.ilffGetLines.argtypes = (c_void_p, c_long, c_long, c_char_pp, c_long_p)
-    lib.ilffGetLines.returntype = c_int
+    lib.ilffGetLines.restype = c_int
 
     lib.ilffGetRange.argtypes = (c_void_p, c_long, c_long, c_char_p, c_long_p)
-    lib.ilffGetRange.returntype = c_int
+    lib.ilffGetRange.restype = c_int
+
+    lib.ilffNLines.argtypes = (c_void_p,)
+    lib.ilffNLines.restype = c_long
+
+    lib.ilffCheck.argtypes = (c_void_p,)
+    lib.ilffCheck.restype = c_long
+
+    lib.ilffReindex.argtypes = (c_void_p,)
+    lib.ilffReindex.restype = c_long
+
+    lib.ilffDumpindex.argtypes = (c_void_p,)
+    lib.ilffDumpindex.restype = c_long
 
     lib.ilffRemove.argtypes = (c_char_p,)
-    lib.ilffRemove.returntype = c_int
+    lib.ilffRemove.restype = c_int
 
 
 def getLib():
@@ -82,7 +85,7 @@ class CILFFFile:
     lib = getLib()
     handle = 0
 
-    def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True):
+    def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True, check=True):
         if self.lib is None:
             raise CILFFError('cILFF library not available')
         self.fname = fname
@@ -92,8 +95,8 @@ class CILFFFile:
         if nameenc is not None:
             self.nameenc = nameenc
         self.mode = mode
-        ilfferr = c_int()
-        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), ilfferr)
+        flags = c_int(1 if check else 0)
+        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), flags)
         if self.handle == 0:
             raise CILFFError('open')
 
