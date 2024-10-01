@@ -95,8 +95,8 @@ class CILFFFile:
         if nameenc is not None:
             self.nameenc = nameenc
         self.mode = mode
-        flags = c_int(1 if check else 0)
-        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), flags)
+        flags = (1 if check else 0) | (2 if symlinks else 0)
+        self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), c_int(flags))
         if self.handle == 0:
             raise CILFFError('open')
 

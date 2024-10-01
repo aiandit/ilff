@@ -7,6 +7,7 @@ typedef void ILFFFile;
 enum EILFFFlags {
   eILFFFlagNone,
   eILFFFlagCheck,
+  eILFFFlagSymlinks,
 };
 
 ILFFFile *ilffOpen(char const *name, char const *mode, int flags);

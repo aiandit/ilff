@@ -136,7 +136,8 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   char* ncopy2 = strdup(name);
   char* fbase = basename(ncopy2);
 
-  char* indexFileName = (char*) malloc(strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF));
+  int nidxLen = strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF);
+  char* indexFileName = malloc(nidxLen);
 
   size_t offs = 0;
 
@@ -173,12 +174,79 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   return indexFileName;
 }
 
-static ILFF *openILFF(char const *name, char const *mode) {
+static char* readlinkILFF(char const *name) {
+  int bufsz = 4096;
+  char* namebuf = malloc(bufsz);
+  ssize_t rlsz = 0;
+
+  for (int tries = 0; tries < 5; ++tries) {
+    rlsz = readlink(name, namebuf, bufsz);
+    if (rlsz == -1) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to read link file %s: %s\n",
+	      name, strerror(errno));
+      free(namebuf);
+      namebuf = 0;
+      return 0;
+    }
+    if (rlsz >= bufsz) {
+      bufsz *= 2;
+      namebuf = realloc(namebuf, bufsz);
+    } else {
+      namebuf[rlsz] = 0;
+      break;
+    }
+  }
+
+  if (namebuf[0] == '/') {
+    return namebuf;
+  }
+
+  char* name2 = strdup(name);
+  char const* dname = dirname(name2);
+
+  ssize_t offs = 0;
+  char* pathbuf = malloc(rlsz + strlen(dname) + 2);
+
+  strcpy(pathbuf, dname);
+  offs += strlen(pathbuf);
+
+  strcpy(pathbuf + offs, "/");
+  offs += 1;
+
+  strcpy(pathbuf + offs, namebuf);
+
+  free(namebuf);
+  free(name2);
+
+  return pathbuf;
+}
+
+static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ILFF *ilff = allocILFF();
 
   ilff->mainFileName = strdup(name);
   ilff->mode = strdup(mode);
-  ilff->indexFileName = getIndexFileName(name, 1);
+
+  if (flags & eILFFFlagSymlinks) {
+    char const* namebuf = name;
+    struct stat stm;
+
+    int rcst = lstat(name, &stm);
+    if (rcst == 0 && S_ISLNK(stm.st_mode)) {
+      namebuf = readlinkILFF(name);
+      if (namebuf == 0) {
+	namebuf = name;
+      }
+    }
+    ilff->indexFileName = getIndexFileName(namebuf, 1);
+    if (namebuf != name) {
+      free((char*)namebuf);
+    }
+  } else {
+    ilff->indexFileName = getIndexFileName(name, 1);
+  }
+
   if (ilff->indexFileName == 0) {
     closeILFF(ilff);
     return 0;
@@ -225,15 +293,16 @@ static ILFF *openILFF(char const *name, char const *mode) {
     readint(ilff->indexFile, &ilff->idx);
   }
 
+  if (flags & eILFFFlagCheck) {
+    int res = ilffCheck(ilff);
+    ilffCheckPrint(ilff, res);
+  }
+
   return ilff;
 }
 
 ILFFFile* ilffOpen(char const *name, char const *mode, int flags) {
-  ILFF* ilff = openILFF(name, mode);
-  if (ilff && (flags & eILFFFlagCheck)) {
-    int res = ilffCheck(ilff);
-    ilffCheckPrint(ilff, res);
-  }
+  ILFF* ilff = openILFF(name, mode, flags);
   return ilff;
 }
 
