@@ -40,9 +40,11 @@ c-uninstall:
 
 
 TESTF ?= test.csv
+TESTFlnk ?= test-lnk.csv
 
 check: check1 check2 check3
 	rm $(TESTF)
+	rm $(TESTFlnk)
 	rm -rf .ilff-index
 
 check1:
@@ -53,30 +55,45 @@ export LANG = C
 
 TESTLNS = 150
 
-test-csv: $(TESTF)
+test-csv: $(TESTF) $(TESTFlnk)
 
 $(TESTF):
 	echo -n "" > $@
 	for i in {1..$(TESTLNS)}; do S=$$(date | head -c $$(( i % 37 + 3 ))); echo "$$S" >> $@; done
 
-check2: $(TESTF)
+$(TESTFlnk): $(TESTF)
+	ln -sfT $(TESTF) $(TESTFlnk)
+
+check2: $(TESTF) $(TESTFlnk)
 	python3 testilff.py
 	python3 testreindex.py $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)
 	python3 testgetlns.py $(TESTF)
 	python3 testgetlns3.py $(TESTF)
+	python3 testgetlns3.py $(TESTFlnk)
 	python3 testgetlns3.py ilff/ilff.py
 	python3 testgetlns4.py $(TESTF)
+	python3 testgetlns4.py $(TESTFlnk)
 	python3 testgetlns4.py ilff/ilff.py
 	python3 testgetlns5.py $(TESTF)
 	python3 testgetlnsnoilff.py $(TESTF)
 	python3 testgetlnsnoilff.py ilff/ilff.py
 
-check3: $(TESTF)
+check3: $(TESTF) $(TESTFlnk)
 	-mkdir /tmp/subdir
-	cp $(TESTF) /tmp/subdir
+	cp -d $(TESTF) $(TESTFlnk) /tmp/subdir
+	ln -sfT /tmp/subdir/$(TESTF) /tmp/subdir/link2.csv
+	ln -sfT ../subdir/$(TESTF) /tmp/subdir/link3.csv
 	python3 testreindex.py /tmp/subdir/$(TESTF)
 	python3 testgetln.py /tmp/subdir/$(TESTF)
 	python3 testgetr.py /tmp/subdir/$(TESTF)
+	python3 testgetlns3.py /tmp/subdir/$(TESTF)
+	python3 testgetlns3.py /tmp/subdir/$(TESTFlnk)
+	python3 testgetlns3.py /tmp/subdir/link2.csv
+	python3 testgetlns3.py /tmp/subdir/link3.csv
+	python3 testgetlns4.py /tmp/subdir/$(TESTF)
+	python3 testgetlns4.py /tmp/subdir/$(TESTFlnk)
+	python3 testgetlns4.py /tmp/subdir/link2.csv
+	python3 testgetlns4.py /tmp/subdir/link3.csv
 	rm -rf /tmp/subdir
