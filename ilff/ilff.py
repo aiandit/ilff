@@ -54,10 +54,10 @@ class ILFFFile:
             self.idxfile = open(self.idxfilen, umode)
             self._nlines = self.get_nlines()
             self.idx = self.readindex(self._nlines-1)[1]
+            if check:
+                self.check()
         else:
             print(f'error: {fname} does not appear to be an indexed file')
-        if check:
-            self.check()
 
     def __del__(self):
         self.close()
@@ -78,9 +78,8 @@ class ILFFFile:
     def checkIndex(self, stf=None):
         if stf is None:
             stf = os.stat(self.file.fileno())
-        (idxn1, idxn) = self.readindex(self.nlines()-1)
-        if idxn != stf.st_size:
-            print(f'Main file is larger than last index. consider reindexing: {self.fname}')
+        if self.idx != stf.st_size:
+            print(f'Main file is larger than last index. consider reindexing {self.fname}')
 
     def remove(self):
         if type(self) == str:
