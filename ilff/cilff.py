@@ -130,11 +130,10 @@ class CILFFFile:
         return self.lib.ilffFlush(self.handle)
 
     def nlines(self):
-        print(f'Call nlines')
         return self.lib.ilffNLines(self.handle)
 
     def get_nlines(self):
-        return self.get_nlines()
+        return self.nlines()
 
     def write(self, txt):
         b = txt.encode(self.encoding)

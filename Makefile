@@ -63,7 +63,6 @@ check2: $(TESTF)
 	python3 testgetln.py $(TESTF)
 	python3 testgetr.py $(TESTF)
 	python3 testgetlns.py $(TESTF)
-	python3 testgetlns2.py $(TESTF)
 	python3 testgetlns3.py $(TESTF)
 	python3 testgetlns3.py ilff/ilff.py
 	python3 testgetlns4.py $(TESTF)

@@ -13,6 +13,7 @@ class ILFFFile:
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
+    file = None
     idxfile = None
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True):
@@ -71,7 +72,8 @@ class ILFFFile:
         self.idxfile.flush()
 
     def close(self):
-        self.file.close()
+        if self.file:
+            self.file.close()
         if self.idxfile:
             self.idxfile.close()
 
@@ -206,9 +208,6 @@ class ILFFFile:
             ln = self.file.read(len).decode(self.encoding)
             res.append(ln)
         return res
-
-    def getlines2(self, start, nlines):
-        return [ self.getline(start+ln) for ln in range(nlines) ]
 
     def getlinestxt(self, start, nlines):
         if nlines <= 0:
