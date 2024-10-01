@@ -5,9 +5,10 @@
 typedef void ILFFFile;
 
 enum EILFFFlags {
-  eILFFFlagNone,
-  eILFFFlagCheck,
-  eILFFFlagSymlinks,
+  eILFFFlagNone        = 0,
+  eILFFFlagCheck       = 1,
+  eILFFFlagSymlinks    = 2,
+  eILFFFlagFlushIndex  = 4,
 };
 
 ILFFFile *ilffOpen(char const *name, char const *mode, int flags);

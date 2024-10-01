@@ -32,6 +32,8 @@ typedef struct {
 
   ILFF_addr_t idx, nlines;
 
+  int flags;
+
 } ILFF;
 
 static ILFF *allocILFF() {
@@ -128,6 +130,15 @@ static int writeindex(ILFF* ilff, ILFF_addr_t idx) {
 
 static ILFF_addr_t get_nlines(ILFF* ilff) {
   return fileSize(ilff->indexFile)/ILFF_ADDRSZ;
+}
+
+#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
+static double mtimeDiff(ILFF* ilff, struct stat* stf) {
+  struct stat sti;
+
+  fstat(fileno(ilff->mainFile), stf);
+  fstat(fileno(ilff->indexFile), &sti);
+  return getTime(stf->st_mtim) - getTime(sti.st_mtim);
 }
 
 static char* getIndexFileName(char const *name, int createIndexDir) {
@@ -299,6 +310,8 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
     ilffCheckPrint(ilff, res);
   }
 
+  ilff->flags = flags;
+
   return ilff;
 }
 
@@ -330,6 +343,14 @@ int ilffWriteLine(ILFFFile* ilff_, char const *data, int64_t len) {
   writeindex(ilff, ilff->idx);
 
   ++ilff->nlines;
+
+  if (ilff->flags & eILFFFlagFlushIndex) {
+    struct stat stf;
+    double tdiff = mtimeDiff(ilff, &stf);
+    if (tdiff > 1) {
+      fflush(ilff->indexFile);
+    }
+  }
   return 0;
 }
 
@@ -501,17 +522,14 @@ int64_t ilffNLines(ILFFFile* ilff_) {
   return get_nlines(ilff);
 }
 
-#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
-
-int ilffCheck(ILFFFile *ilff_) {
+int ilffCheck(ILFFFile* ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
 
   int res = 0;
-  struct stat stf, sti;
+  struct stat stf;
 
-  fstat(fileno(ilff->mainFile), &stf);
-  fstat(fileno(ilff->indexFile), &sti);
-  if (getTime(stf.st_mtim) - getTime(sti.st_mtim) > 2) {
+  double tdiff = mtimeDiff(ilff, &stf);
+  if (tdiff > 2) {
     res |= 1;
   }
 

@@ -85,7 +85,7 @@ class CILFFFile:
     lib = getLib()
     handle = 0
 
-    def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True, check=True):
+    def __init__(self, fname, mode='r', encoding='utf8', nameenc='utf8', symlinks=True, check=True, flushIndex=True):
         if self.lib is None:
             raise CILFFError('cILFF library not available')
         self.fname = fname
@@ -95,7 +95,7 @@ class CILFFFile:
         if nameenc is not None:
             self.nameenc = nameenc
         self.mode = mode
-        flags = (1 if check else 0) | (2 if symlinks else 0)
+        flags = (1 if check else 0) | (2 if symlinks else 0) | (4 if flushIndex else 0)
         self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), c_int(flags))
         if self.handle == 0:
             raise CILFFError('open')
