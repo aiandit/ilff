@@ -220,7 +220,7 @@ static ILFF *openILFF(char const *name, char const *mode) {
 
   ilff->nlines = get_nlines(ilff);
 
-  if (ilff->nlines > 0 && mode[0] != 'r') {
+  if (ilff->nlines > 0) {
     fseek(ilff->indexFile, (ilff->nlines-1)*ILFF_ADDRSZ, SEEK_SET);
     readint(ilff->indexFile, &ilff->idx);
   }
@@ -228,8 +228,12 @@ static ILFF *openILFF(char const *name, char const *mode) {
   return ilff;
 }
 
-ILFFFile* ilffOpen(char const *name, char const *mode) {
+ILFFFile* ilffOpen(char const *name, char const *mode, int flags) {
   ILFF* ilff = openILFF(name, mode);
+  if (ilff && (flags & eILFFFlagCheck)) {
+    int res = ilffCheck(ilff);
+    ilffCheckPrint(ilff, res);
+  }
   return ilff;
 }
 
@@ -425,6 +429,38 @@ int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index
 int64_t ilffNLines(ILFFFile* ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
   return get_nlines(ilff);
+}
+
+#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
+
+int ilffCheck(ILFFFile *ilff_) {
+  ILFF* ilff = (ILFF*) ilff_;
+
+  int res = 0;
+  struct stat stf, sti;
+
+  fstat(fileno(ilff->mainFile), &stf);
+  fstat(fileno(ilff->indexFile), &sti);
+  if (getTime(stf.st_mtim) - getTime(sti.st_mtim) > 2) {
+    res |= 1;
+  }
+
+  if (ilff->idx != stf.st_size) {
+    res |= 2;
+  }
+
+  return res;
+}
+
+int ilffCheckPrint(ILFFFile *ilff_, int res) {
+  ILFF* ilff = (ILFF*) ilff_;
+  if (res & 1) {
+    fprintf(stderr, "Warning: index file is outdated, consider reindexing %s\n", ilff->mainFileName);
+  }
+  if (res & 2) {
+    fprintf(stderr, "Main file is larger than last index. consider reindexing %s\n", ilff->mainFileName);
+  }
+  return 0;
 }
 
 int ilffReindex(ILFFFile *ilff_) {
