@@ -56,11 +56,15 @@ class ILFFFile:
             self.idx = self.readindex(self._nlines-1)[1]
             if check:
                 self.check()
+            self.file.seek(self.idx)
         else:
             print(f'error: {fname} does not appear to be an indexed file')
 
     def __del__(self):
         self.close()
+
+    def __str__(self):
+        return f'ILFFFile("{self.fname}", nlines={self._nlines}, @{self.idx})'
 
     def check(self):
         tdiff, stf = self.checkFileTimes()
@@ -79,7 +83,7 @@ class ILFFFile:
         if stf is None:
             stf = os.stat(self.file.fileno())
         if self.idx != stf.st_size:
-            print(f'Main file is larger than last index. consider reindexing {self.fname}')
+            print(f'Main file size is inconsistent with index. consider reindexing {self.fname}')
 
     def remove(self):
         if type(self) == str:
@@ -106,9 +110,8 @@ class ILFFFile:
             file.seek((lnnum-1)*self.indexBytes)
             idxdata = file.read(self.indexBytes)
             if len(idxdata) != self.indexBytes:
-                if lnnum*self.indexBytes > file.seek(0, os.SEEK_END):
-                    raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
-                                    (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
+                raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
+                                (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
                 idx1 = 2**30
             else:
                 idx1 = int(0).from_bytes(idxdata, 'little')
@@ -117,20 +120,22 @@ class ILFFFile:
             file.seek(lnnum*self.indexBytes)
         idxdata = file.read(self.indexBytes)
         if len(idxdata) != self.indexBytes:
-            if lnnum*self.indexBytes > file.seek(0, os.SEEK_END):
-                raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
-                                (lnnum, file.seek(0, os.SEEK_END)/4))
+            raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
+                            (lnnum, file.seek(0, os.SEEK_END)/4))
             idx2 = 2**30
         else:
             idx2 = int(0).from_bytes(idxdata, 'little')
+
+        if self.mode != 'r':
+            file.seek(0, os.SEEK_END)
+
         return (idx1, idx2)
 
     def readindex(self, lnnum):
         return self.readint(self.idxfile, lnnum)
 
     def _ifileSize(self):
-        self.idxfile.seek(0, io.SEEK_END)
-        return self.idxfile.tell()
+        return self.idxfile.seek(0, io.SEEK_END)
 
     def nlines(self):
         return int(self._ifileSize()/self.indexBytes)
@@ -215,6 +220,8 @@ class ILFFFile:
             return ""
         self.file.seek(idx)
         ln = self.file.read(len)
+        if self.mode != 'r':
+            self.file.seek(self.idx)
         return ln.decode(self.encoding)
 
     def getlines(self, start, nlines):
@@ -227,6 +234,8 @@ class ILFFFile:
             len = idx2 - idx
             ln = self.file.read(len).decode(self.encoding)
             res.append(ln)
+        if self.mode != 'r':
+            self.file.seek(self.idx)
         return res
 
     def getlinestxt(self, start, nlines):
@@ -238,6 +247,8 @@ class ILFFFile:
         ramount = idxe2 - idxs
         ln = b''
         ln = self.file.read(ramount)
+        if self.mode != 'r':
+            self.file.seek(self.idx)
         return ln.decode(self.encoding)
 
     def tail(self, lnnum):
@@ -267,22 +278,16 @@ class ILFFFile:
         #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         (idx, idx2) = self.readindex(ind)
         ln = idx2 - idx
-        if ln < 0 or ln > 1e5:
-            print('cannot erase line %d of %s (ln %d)' % (ind, self.fname, ln))
-            return
-        print('erase line %d of %s (ln %d)' % (ind, self.fname, ln))
-        newidx = idx + ln
         self.file.seek(idx)
         n = ln - len(repl) -1
         if n < 0:
             print('cannot erase line %d of %s (ln %d)' % (ind, self.fname, n))
+            raise ILFFError('erase')
             return
         white = ' ' * (n)
         bts = (repl + white).encode(self.encoding)
-        print('erase line %d of %s (ln %d), write "%s" at offs %d' % (
-            ind, self.fname, ln, bts, self.file.tell()))
         self.file.write(bts[0:ln])
-        self.file.flush()
+        self.file.seek(self.idx)
 
 
 def unlink(name):

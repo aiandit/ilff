@@ -33,6 +33,7 @@ typedef struct {
   ILFF_addr_t idx, nlines;
 
   int flags;
+  int readonly;
 
 } ILFF;
 
@@ -121,6 +122,11 @@ static int readindex(ILFF* ilff, int lnnum, ILFF_addr_t* idx1, ILFF_addr_t* idx2
   }
 
   rc2 = readint(ilff->indexFile, idx2);
+
+  if (!ilff->readonly) {
+    fseek(ilff->indexFile, 0, SEEK_END);
+  }
+
   return rc1 == 0 && rc2 == 0 ? 0 : -1;
 }
 
@@ -239,6 +245,7 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
 
   ilff->mainFileName = strdup(name);
   ilff->mode = strdup(mode);
+  ilff->readonly = strcmp(mode, "r") == 0;
 
   if (flags & eILFFFlagSymlinks) {
     char const* namebuf = name;
@@ -383,6 +390,10 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   size_t nrd = fread(data, 1, rlen, ilff->mainFile);
   *nChars = nrd;
 
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
+
   return 0;
 }
 
@@ -453,6 +464,10 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
   }
 
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
+
   free(index);
   return res;
 }
@@ -487,6 +502,10 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
 
   size_t rcr = fread(data, 1, rlen, ilff->mainFile);
   *nChars = rcr;
+
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
 
   return 0;
 }
