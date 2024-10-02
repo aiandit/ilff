@@ -5,6 +5,7 @@
 #include <string.h>
 #include <errno.h>
 #include <libgen.h>
+#include <math.h>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -572,17 +573,28 @@ int ilffReindex(ILFFFile *ilff_) {
 int ilffDumpindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
 
-  ILFF_addr_t ln = 0, idx1 = 0, idx2 = 0, n = 0;
+  int chunkSize = 10000;
+  int numBlocks = ceil(ilff->nlines / ((double)chunkSize));
+  int lastBlock = ilff->nlines % chunkSize;
+  ILFF_addr_t* index = malloc(chunkSize * ILFF_ADDRSZ);
+  ILFF_addr_t lastIdx = 0;
 
-  n = get_nlines(ilff);
+  for (int i = 0; i < numBlocks; ++i) {
+    int readsize = i+1 == numBlocks ? lastBlock : chunkSize;
 
-  fseek(ilff->indexFile, 0, SEEK_SET);
+    ILFF_addr_t offs = i*chunkSize;
+    ilffGetIndex(ilff_, offs, readsize, index);
 
-  for ( ; ln < n; ++ln) {
-    idx1 = idx2;
-    readint(ilff->indexFile, &idx2);
-    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", ln, idx1, idx2, idx2 - idx1);
+    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
+
+    for (int ln = 1; ln < readsize; ++ln) {
+      fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
+    }
+
+    lastIdx = index[chunkSize - 1];
   }
+
+  free(index);
 
   return 0;
 }
