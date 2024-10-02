@@ -25,7 +25,6 @@ class ILFFGetLines:
                 self.file = open(fname, mode=mode, encoding=encoding)
         if self.file:
             self.lines = self.file.read().split('\n')
-        print('Opened')
 
     def getlines(self, offs, ln):
         if self.ilff is not None:
@@ -48,7 +47,7 @@ class ILFFGetLines:
 
     def nlines(self):
         if self.ilff is not None:
-            return self.ilff.get_nlines()
+            return self.ilff.nlines()
         else:
             return len(self.lines) - 1
 

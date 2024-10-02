@@ -5,6 +5,7 @@
 #include <string.h>
 #include <errno.h>
 #include <libgen.h>
+#include <math.h>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -30,6 +31,9 @@ typedef struct {
   char* mode;
 
   ILFF_addr_t idx, nlines;
+
+  int flags;
+  int readonly;
 
 } ILFF;
 
@@ -118,6 +122,11 @@ static int readindex(ILFF* ilff, int lnnum, ILFF_addr_t* idx1, ILFF_addr_t* idx2
   }
 
   rc2 = readint(ilff->indexFile, idx2);
+
+  if (!ilff->readonly) {
+    fseek(ilff->indexFile, 0, SEEK_END);
+  }
+
   return rc1 == 0 && rc2 == 0 ? 0 : -1;
 }
 
@@ -129,6 +138,15 @@ static ILFF_addr_t get_nlines(ILFF* ilff) {
   return fileSize(ilff->indexFile)/ILFF_ADDRSZ;
 }
 
+#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
+static double mtimeDiff(ILFF* ilff, struct stat* stf) {
+  struct stat sti;
+
+  fstat(fileno(ilff->mainFile), stf);
+  fstat(fileno(ilff->indexFile), &sti);
+  return getTime(stf->st_mtim) - getTime(sti.st_mtim);
+}
+
 static char* getIndexFileName(char const *name, int createIndexDir) {
   char* ncopy1 = strdup(name);
   char* fdir = dirname(ncopy1);
@@ -136,7 +154,8 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   char* ncopy2 = strdup(name);
   char* fbase = basename(ncopy2);
 
-  char* indexFileName = (char*) malloc(strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF));
+  int nidxLen = strlen(fdir) + sizeof(ILFF_INDEX_DIR) + 3 + strlen(fbase) + sizeof(ILFF_INDEX_SUFF);
+  char* indexFileName = malloc(nidxLen);
 
   size_t offs = 0;
 
@@ -173,12 +192,80 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   return indexFileName;
 }
 
-static ILFF *openILFF(char const *name, char const *mode) {
+static char* readlinkILFF(char const *name) {
+  int bufsz = 4096;
+  char* namebuf = malloc(bufsz);
+  ssize_t rlsz = 0;
+
+  for (int tries = 0; tries < 5; ++tries) {
+    rlsz = readlink(name, namebuf, bufsz);
+    if (rlsz == -1) {
+      fprintf(stderr,
+	      "ILFF: Error: Failed to read link file %s: %s\n",
+	      name, strerror(errno));
+      free(namebuf);
+      namebuf = 0;
+      return 0;
+    }
+    if (rlsz >= bufsz) {
+      bufsz *= 2;
+      namebuf = realloc(namebuf, bufsz);
+    } else {
+      namebuf[rlsz] = 0;
+      break;
+    }
+  }
+
+  if (namebuf[0] == '/') {
+    return namebuf;
+  }
+
+  char* name2 = strdup(name);
+  char const* dname = dirname(name2);
+
+  ssize_t offs = 0;
+  char* pathbuf = malloc(rlsz + strlen(dname) + 2);
+
+  strcpy(pathbuf, dname);
+  offs += strlen(pathbuf);
+
+  strcpy(pathbuf + offs, "/");
+  offs += 1;
+
+  strcpy(pathbuf + offs, namebuf);
+
+  free(namebuf);
+  free(name2);
+
+  return pathbuf;
+}
+
+static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ILFF *ilff = allocILFF();
 
   ilff->mainFileName = strdup(name);
   ilff->mode = strdup(mode);
-  ilff->indexFileName = getIndexFileName(name, 1);
+  ilff->readonly = strcmp(mode, "r") == 0;
+
+  if (flags & eILFFFlagSymlinks) {
+    char const* namebuf = name;
+    struct stat stm;
+
+    int rcst = lstat(name, &stm);
+    if (rcst == 0 && S_ISLNK(stm.st_mode)) {
+      namebuf = readlinkILFF(name);
+      if (namebuf == 0) {
+	namebuf = name;
+      }
+    }
+    ilff->indexFileName = getIndexFileName(namebuf, 1);
+    if (namebuf != name) {
+      free((char*)namebuf);
+    }
+  } else {
+    ilff->indexFileName = getIndexFileName(name, 1);
+  }
+
   if (ilff->indexFileName == 0) {
     closeILFF(ilff);
     return 0;
@@ -220,16 +307,23 @@ static ILFF *openILFF(char const *name, char const *mode) {
 
   ilff->nlines = get_nlines(ilff);
 
-  if (ilff->nlines > 0 && mode[0] != 'r') {
+  if (ilff->nlines > 0) {
     fseek(ilff->indexFile, (ilff->nlines-1)*ILFF_ADDRSZ, SEEK_SET);
     readint(ilff->indexFile, &ilff->idx);
   }
 
+  if (flags & eILFFFlagCheck) {
+    int res = ilffCheck(ilff);
+    ilffCheckPrint(ilff, res);
+  }
+
+  ilff->flags = flags;
+
   return ilff;
 }
 
-ILFFFile* ilffOpen(char const *name, char const *mode) {
-  ILFF* ilff = openILFF(name, mode);
+ILFFFile* ilffOpen(char const *name, char const *mode, int flags) {
+  ILFF* ilff = openILFF(name, mode, flags);
   return ilff;
 }
 
@@ -245,17 +339,25 @@ int ilffWrite(ILFFFile *ilff_, char const *data, int64_t len) {
 int ilffWriteLine(ILFFFile* ilff_, char const *data, int64_t len) {
   ILFF* ilff = (ILFF*) ilff_;
 
-  if (data[len-1] == '\n') {
-    --len;
+  fwrite(data, 1, len, ilff->mainFile);
+
+  if (data[len-1] != '\n') {
+    fputc('\n', ilff->mainFile);
+    ++len;
   }
 
-  fwrite(data, 1, len, ilff->mainFile);
-  fputc('\n', ilff->mainFile);
-
-  ilff->idx = ilff->idx + len + 1;
+  ilff->idx = ilff->idx + len;
   writeindex(ilff, ilff->idx);
 
   ++ilff->nlines;
+
+  if (ilff->flags & eILFFFlagFlushIndex) {
+    struct stat stf;
+    double tdiff = mtimeDiff(ilff, &stf);
+    if (tdiff > 1) {
+      fflush(ilff->indexFile);
+    }
+  }
   return 0;
 }
 
@@ -287,6 +389,10 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
 
   size_t nrd = fread(data, 1, rlen, ilff->mainFile);
   *nChars = nrd;
+
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
 
   return 0;
 }
@@ -358,6 +464,10 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
   }
 
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
+
   free(index);
   return res;
 }
@@ -393,6 +503,10 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   size_t rcr = fread(data, 1, rlen, ilff->mainFile);
   *nChars = rcr;
 
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
+
   return 0;
 }
 
@@ -425,6 +539,35 @@ int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index
 int64_t ilffNLines(ILFFFile* ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
   return get_nlines(ilff);
+}
+
+int ilffCheck(ILFFFile* ilff_) {
+  ILFF* ilff = (ILFF*) ilff_;
+
+  int res = 0;
+  struct stat stf;
+
+  double tdiff = mtimeDiff(ilff, &stf);
+  if (tdiff > 2) {
+    res |= 1;
+  }
+
+  if (ilff->idx != stf.st_size) {
+    res |= 2;
+  }
+
+  return res;
+}
+
+int ilffCheckPrint(ILFFFile *ilff_, int res) {
+  ILFF* ilff = (ILFF*) ilff_;
+  if (res & 1) {
+    fprintf(stderr, "Warning: index file is outdated, consider reindexing %s\n", ilff->mainFileName);
+  }
+  if (res & 2) {
+    fprintf(stderr, "Main file is larger than last index. consider reindexing %s\n", ilff->mainFileName);
+  }
+  return 0;
 }
 
 int ilffReindex(ILFFFile *ilff_) {
@@ -467,17 +610,28 @@ int ilffReindex(ILFFFile *ilff_) {
 int ilffDumpindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
 
-  ILFF_addr_t ln = 0, idx1 = 0, idx2 = 0, n = 0;
+  int chunkSize = 10000;
+  int numBlocks = ceil(ilff->nlines / ((double)chunkSize));
+  int lastBlock = ilff->nlines % chunkSize;
+  ILFF_addr_t* index = malloc(chunkSize * ILFF_ADDRSZ);
+  ILFF_addr_t lastIdx = 0;
 
-  n = get_nlines(ilff);
+  for (int i = 0; i < numBlocks; ++i) {
+    int readsize = i+1 == numBlocks ? lastBlock : chunkSize;
 
-  fseek(ilff->indexFile, 0, SEEK_SET);
+    ILFF_addr_t offs = i*chunkSize;
+    ilffGetIndex(ilff_, offs, readsize, index);
 
-  for ( ; ln < n; ++ln) {
-    idx1 = idx2;
-    readint(ilff->indexFile, &idx2);
-    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", ln, idx1, idx2, idx2 - idx1);
+    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
+
+    for (int ln = 1; ln < readsize; ++ln) {
+      fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
+    }
+
+    lastIdx = index[chunkSize - 1];
   }
+
+  free(index);
 
   return 0;
 }

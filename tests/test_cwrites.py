@@ -24,7 +24,7 @@ class TestCILFFWrites1(unittest.TestCase):
 
     def test_02_write(self):
         ilf = ilff.CILFFFile('test.ilff', mode='w', encoding='utf8')
-        print(*map(lambda x: ilf.appendLine(x), self.lines))
+        rc = [*map(lambda x: ilf.appendLine(x), self.lines)]
         self.assertTrue(os.path.exists('test.ilff'))
         self.assertTrue(ilf.nlines() == 3)
         ilf.close()
@@ -157,7 +157,7 @@ class TestCILFFWrites3(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.CILFFFile(self.fname, 'a+')
+        ilf = ilff.CILFFFile(self.fname, 'a+', check=False)
         ilf.buildindex()
         ilf.close()
 
@@ -209,7 +209,7 @@ class TestCILFFWrites4(unittest.TestCase):
         of.close()
 
     def test_01a_buildindex(self):
-        ilf = ilff.CILFFFile(self.fname, 'a+')
+        ilf = ilff.CILFFFile(self.fname, 'a+', check=False)
         ilf.buildindex()
         ilf.close()
 
@@ -217,9 +217,9 @@ class TestCILFFWrites4(unittest.TestCase):
         ilf = ilff.CILFFFile(self.fname)
         for i in range(3):
             l = ilf.getline(i)
-            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
-            self.assertTrue(i > 1 or l == self.linesnl[i])
-            self.assertTrue(i < 2 or l == self.lines[i])
+            chck = l == self.linesnl[i] if i < 2 else l == self.lines[i]
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], chck)
+            self.assertTrue(chck)
         ilf.close()
 
     def test_03_get2(self):
@@ -243,6 +243,41 @@ class TestCILFFWrites4(unittest.TestCase):
         lns = ilf.getlinestxt(0, 3)
         print(f'5: "{lns}"')
         self.assertTrue(lns == '\n'.join(self.lines))
+        ilf.close()
+
+
+class TestCILFFWrites5(unittest.TestCase):
+
+    lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
+    fname = str(uuid.uuid4()) + '.ilff'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        ilf = ilff.CILFFFile(self.fname, 'w', check=False)
+        [ilf.write(l) for l in self.linesnl]
+        ilf.close()
+
+    def test_02_get(self):
+        ilf = ilff.CILFFFile(self.fname)
+        for i in range(3):
+            l = ilf.getline(i)
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
+            self.assertTrue(l == self.linesnl[i])
+        assert ilf.nlines() == 3
+        ilf.close()
+
+    def test_03_getln(self):
+        self.lines += ['dddddddd dddddddd ddddd dddd', 'eeeee eeeeee eeeeeee eeeeee']
+        ilf = ilff.CILFFFile(self.fname, mode='r+')
+        l = ilf.getline(1)
+        ilf.write(self.lines[3])
+        assert l == self.linesnl[1]
+        assert ilf.nlines() == 4
+        assert ilf.getline(3) == self.lines[3] + '\n'
         ilf.close()
 
 

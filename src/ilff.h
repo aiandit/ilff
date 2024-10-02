@@ -4,7 +4,14 @@
 
 typedef void ILFFFile;
 
-ILFFFile *ilffOpen(char const *name, char const *mode);
+enum EILFFFlags {
+  eILFFFlagNone        = 0,
+  eILFFFlagCheck       = 1,
+  eILFFFlagSymlinks    = 2,
+  eILFFFlagFlushIndex  = 4,
+};
+
+ILFFFile *ilffOpen(char const *name, char const *mode, int flags);
 int ilffClose(ILFFFile *);
 
 int ilffWrite(ILFFFile *, char const *data, int64_t len);
@@ -17,6 +24,9 @@ int ilffGetRange(ILFFFile *, int64_t const lnnum, int64_t const N, char *data, i
 int ilffGetIndex(ILFFFile *, int64_t lnnum, int64_t const N, int64_t* index);
 
 int64_t ilffNLines(ILFFFile *);
+
+int ilffCheck(ILFFFile*);
+int ilffCheckPrint(ILFFFile *ilff_, int res);
 
 int ilffReindex(ILFFFile*);
 int ilffDumpindex(ILFFFile*);
