@@ -246,5 +246,40 @@ class TestCILFFWrites4(unittest.TestCase):
         ilf.close()
 
 
+class TestCILFFWrites5(unittest.TestCase):
+
+    lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
+    linesnl = [l + '\n' for l in lines]
+    fname = str(uuid.uuid4()) + '.ilff'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        ilf = ilff.CILFFFile(self.fname, 'w', check=False)
+        [ilf.write(l) for l in self.linesnl]
+        ilf.close()
+
+    def test_02_get(self):
+        ilf = ilff.CILFFFile(self.fname)
+        for i in range(3):
+            l = ilf.getline(i)
+            print('L:', i, '"%s"' % l, '"%s"' % self.lines[i], l == self.linesnl[i])
+            self.assertTrue(l == self.linesnl[i])
+        assert ilf.nlines() == 3
+        ilf.close()
+
+    def test_03_getln(self):
+        self.lines += ['dddddddd dddddddd ddddd dddd', 'eeeee eeeeee eeeeeee eeeeee']
+        ilf = ilff.CILFFFile(self.fname, mode='r+')
+        l = ilf.getline(1)
+        ilf.write(self.lines[3])
+        assert l == self.linesnl[1]
+        assert ilf.nlines() == 4
+        assert ilf.getline(3) == self.lines[3] + '\n'
+        ilf.close()
+
+
 if __name__ == '__main__':
     unittest.main()
