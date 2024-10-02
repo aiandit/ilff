@@ -97,7 +97,7 @@ class CILFFFile:
         self.mode = mode
         flags = (1 if check else 0) | (2 if symlinks else 0) | (4 if flushIndex else 0)
         self.handle = self.lib.ilffOpen(self.fname.encode(self.nameenc), self.mode.encode(self.nameenc), c_int(flags))
-        if self.handle == 0:
+        if not self.handle:
             raise CILFFError('open')
 
     def __del__(self):
@@ -115,7 +115,7 @@ class CILFFFile:
     def close(self):
         if self.handle:
             self.lib.ilffClose(self.handle)
-            self.handle = 0
+            self.handle = None
 
     def dumpindex(self):
         return self.lib.ilffDumpindex(self.handle)
