@@ -1,3 +1,14 @@
+ilff (0.7.6-1) fionec-unstable; urgency=medium
+
+  * Perform some simple checks on the index consistency when opening
+  * Add ilffCheck and option to check index on open
+  * Add the symlinks option to ilffOpen
+  * Add auto-flush feature to C version
+  * Support mixed write and read ops
+  * New version 0.7.6
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 02 Oct 2024 12:38:25 +0200
+
 ilff (0.7.5-1) fionec-unstable; urgency=medium
 
   * Merge ILFFGetlines classes into one, to own module
