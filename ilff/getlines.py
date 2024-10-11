@@ -20,6 +20,7 @@ def parseargs():
   group.add_argument('--end', '-e', metavar='N', type=int, help='end index')
   group.add_argument('--number', '-n', metavar='N', type=int, help='number of lines')
 
+  parser.add_argument('--sep', '-s', metavar='STR', type=str, help='record separator')
   parser.add_argument('--outfile', '-o', metavar='FILE', type=str, help='output file')
 
   parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
@@ -65,7 +66,7 @@ def run():
 
     fname = args.infile
 
-    il = ilff.ILFFFile(fname)
+    il = ilff.ILFFFile(fname, sep=args.sep)
 
     lns = il.getlines(b, n)
 
