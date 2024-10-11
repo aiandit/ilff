@@ -297,7 +297,7 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
     return 0;
   }
 
-  char mymode[4] = {0};
+  char mymode[6] = {0};
   int nmode = 0;
   mymode[nmode] = mode[0];
   ++nmode;
@@ -318,8 +318,11 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   }
 
   if (mode[0] == 'a') {
-    mymode[nmode-1] = '+';
+    nmode = 1;
+    mymode[nmode] = '+';
+    ++nmode;
     mymode[nmode] = 'b';
+    ++nmode;
   }
 
   ilff->indexFile = fopen(ilff->indexFileName, mymode);
