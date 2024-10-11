@@ -251,16 +251,6 @@ class ILFFFile:
             self.file.seek(self.idx)
         return ln.decode(self.encoding)
 
-    def tail(self, lnnum):
-        if lnnum > 0:
-            lnnum -= 1
-        self.idxfile.seek(lnnum*self.indexBytes)
-        idx = readindex()
-        len = readlen()
-        self.file.seek(idx)
-        ln = self.file.read(len)
-        return len
-
     def getindex(self):
         for i in range(3):
             self.idxfile.seek(i*self.indexBytes)
