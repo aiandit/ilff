@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 mydir=$(dirname $BASH_SOURCE)
 
 cd $mydir
