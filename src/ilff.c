@@ -16,6 +16,15 @@ typedef int64_t ILFF_addr_t;
 #define ILFF_INDEX_DIR ".ilff-index"
 #define ILFF_INDEX_SUFF ".idx"
 
+#if defined WIN32 || defined WIN64
+#define IS_WINDOWS 1
+#warning windows
+#endif
+
+#if _POSIX_C_SOURCE >= 200809L && !defined IS_WINDOWS
+#define HAVE_ST_MTIM
+#endif
+
 #define min(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
@@ -138,13 +147,18 @@ static ILFF_addr_t get_nlines(ILFF* ilff) {
   return fileSize(ilff->indexFile)/ILFF_ADDRSZ;
 }
 
-#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
+#ifdef HAVE_ST_MTIM
+#define getTime(tv) (stf->st_mtim.tv_sec + 1e-9 * stf->st_mtim.tv_nsec)
+#else
+#define getTime(tv) (stf->st_mtime)
+#endif
+
 static double mtimeDiff(ILFF* ilff, struct stat* stf) {
   struct stat sti;
 
   fstat(fileno(ilff->mainFile), stf);
   fstat(fileno(ilff->indexFile), &sti);
-  return getTime(stf->st_mtim) - getTime(sti.st_mtim);
+  return getTime(stf) - getTime(sti);
 }
 
 static char* getIndexFileName(char const *name, int createIndexDir) {
@@ -169,7 +183,12 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   offs += sizeof(ILFF_INDEX_DIR) - 1;
 
   if (createIndexDir) {
-    int rcmd = mkdir(indexFileName, 0755);
+    int rcmd = mkdir(indexFileName
+#ifdef IS_WINDOWS
+#else
+                     , 0755
+#endif
+                     );
     if (rcmd && errno != EEXIST) {
       fprintf(stderr,
 	      "ILFF: Error: Failed to create index directory %s: %s\n",
@@ -192,6 +211,8 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   return indexFileName;
 }
 
+#ifdef IS_WINDOWS
+#else
 static char* readlinkILFF(char const *name) {
   int bufsz = 4096;
   char* namebuf = malloc(bufsz);
@@ -239,6 +260,7 @@ static char* readlinkILFF(char const *name) {
 
   return pathbuf;
 }
+#endif
 
 static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ILFF *ilff = allocILFF();
@@ -247,6 +269,9 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ilff->mode = strdup(mode);
   ilff->readonly = strcmp(mode, "r") == 0;
 
+#ifdef IS_WINDOWS
+  ilff->indexFileName = getIndexFileName(name, 1);
+#else
   if (flags & eILFFFlagSymlinks) {
     char const* namebuf = name;
     struct stat stm;
@@ -265,6 +290,7 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   } else {
     ilff->indexFileName = getIndexFileName(name, 1);
   }
+#endif
 
   if (ilff->indexFileName == 0) {
     closeILFF(ilff);
@@ -606,6 +632,30 @@ int ilffCheckPrint(ILFFFile *ilff_, int res) {
   }
   return 0;
 }
+
+#ifdef IS_WINDOWS
+ssize_t getline(char** lineptr, size_t* n, FILE* stream) {
+  memset(*lineptr, '\n', *n);
+  char* fgr = 0;
+
+  while(1) {
+    char* fgr = fgets(*lineptr, *n, stream);
+    int s = 0;
+    for ( ; s < *n && fgr[s] != '\n'; ++s) {
+    }
+    if (s < *n) {
+      return s;
+    } else {
+      *lineptr = realloc(*lineptr, *n * 2);
+      memset(*lineptr + *n, '\n', *n);
+      *n *= 2;
+    }
+  }
+
+  return 0;
+}
+
+#endif
 
 int ilffReindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
