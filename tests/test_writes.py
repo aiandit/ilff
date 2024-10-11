@@ -170,7 +170,7 @@ class TestILFFWrites3(unittest.TestCase):
         ilff.unlink(self.fname)
 
     def test_01_write(self):
-        of = open(self.fname, 'w')
+        of = open(self.fname, 'w', newline='\n')
         of.write('\n'.join(self.lines) + '\n')
         of.close()
 
@@ -222,7 +222,7 @@ class TestILFFWrites4(unittest.TestCase):
         ilff.unlink(self.fname)
 
     def test_01_write(self):
-        of = open(self.fname, 'w')
+        of = open(self.fname, 'w', newline='\n')
         of.write('\n'.join(self.lines))
         of.close()
 
