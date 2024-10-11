@@ -15,12 +15,15 @@ class ILFFFile:
     maxmtimediff = 1
     file = None
     idxfile = None
+    sep = '\n'
+    bsep = b'\n'
 
-    def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True):
-#        print('*** create: %s, append=%s' % (fname,append,))
+    def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True, sep='\n'):
         self.fname = fname
         if encoding is not None:
             self.encoding = encoding
+        self.sep = sep
+        self.bsep = self.sep.encode(self.encoding)
         self.mode = mode
         if mode == 'r':
             umode = 'r'
@@ -31,13 +34,11 @@ class ILFFFile:
         elif mode == 'a' or mode == 'a+':
             umode = 'a+'
         umode += 'b'
-#        print('open %s with mode %s' %(self.fname, umode))
         self.file = open(self.fname, mode + 'b')
         if symlinks and os.path.islink(self.fname):
             self.realfname = os.readlink(self.fname)
             if not os.path.isabs(self.realfname):
                 self.realfname = os.path.join(os.path.dirname(self.fname), self.realfname)
-                # print(f'readlink: {self.fname} => {self.realfname}')
         else:
             self.realfname = self.fname
         (base, notdir) = os.path.split(self.realfname)
@@ -47,7 +48,6 @@ class ILFFFile:
         except:
             pass
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
-        # print(f'index file: {self.fname} => {self.idxfilen}')
         if not os.path.exists(self.idxfilen):
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
@@ -144,25 +144,21 @@ class ILFFFile:
         return self.nlines()
 
     def write(self, txt):
-        self.appendLine(txt)
+        lns = txt.split(self.sep)
+        if len(txt) >= len(self.sep) and txt[len(txt) - len(self.sep):] == self.sep:
+            lns = lns[0:-1]
+        [self.appendLine(ln) for ln in lns]
 
     def appendLine(self, txt):
-        #        print('*** al %d: %d,%d' % (self._nlines,self.idxfile.tell(), self.lenfile.tell()))
         llen = len(txt)
-        if txt[llen-1] == '\n':
-            txt = txt[0:llen-1]
-        if '\n' in txt:
-            print('This is not a line')
-            assert(false)
-        #self.file.seek(newidx)
-        #        print('*** al %d: %d,%d' % (self._nlines,self.idxfile.tell(), self.lenfile.tell()))
+        if llen >= len(self.sep) and txt[llen - len(self.sep):] == self.sep:
+            txt = txt[0:-len(self.sep)]
         txtdata = txt.encode(self.encoding)
-        llen = len(txtdata)+1
+        llen = len(txtdata) + len(self.bsep)
         newidx = self.idx + llen
-        #  print('*** al %d: %d,%d,%d,%d' % (self._nlines,self.idx,len(txt),newidx,llen))
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
-        self.file.write((txtdata + b'\n'))
+        self.file.write(txtdata + self.bsep)
         self._nlines += 1
         tdiff, _ = self.checkFileTimes(False)
         if tdiff > self.maxmtimediff:
@@ -208,14 +204,13 @@ class ILFFFile:
         self.flush()
         shutil.copy(self.fname, self.fname + '.bak')
         self.truncate()
-        with open(self.fname + '.bak', 'r', encoding=self.encoding) as fcopy:
+        with open(self.fname + '.bak', 'r', encoding=self.encoding, newline=self.sep) as fcopy:
             self.fromfile(fcopy, empty=empty)
         os.remove(self.fname + '.bak')
 
     def getline(self, lnnum):
         (idx, idx2) = self.readindex(lnnum)
         len = idx2 - idx
-        # print('*** gl: %d,%d,%d,%d' % (lnnum,idx,idx2,len))
         if len == 0:
             return ""
         self.file.seek(idx)
@@ -251,21 +246,10 @@ class ILFFFile:
             self.file.seek(self.idx)
         return ln.decode(self.encoding)
 
-    def tail(self, lnnum):
-        if lnnum > 0:
-            lnnum -= 1
-        self.idxfile.seek(lnnum*self.indexBytes)
-        idx = readindex()
-        len = readlen()
-        self.file.seek(idx)
-        ln = self.file.read(len)
-        return len
-
     def getindex(self):
         for i in range(3):
             self.idxfile.seek(i*self.indexBytes)
             idx = readindex()
-            # print('%d: %d - %d' % (i, idx, len))
 
     def dumpindex(self):
         print('Number of Lines: ', self.get_nlines())
@@ -275,7 +259,6 @@ class ILFFFile:
             print('%d: %d - %d (%d)' % (i, idx1, idx2, ln))
 
     def eraseLine(self, ind, repl=""):
-        #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         (idx, idx2) = self.readindex(ind)
         ln = idx2 - idx
         self.file.seek(idx)

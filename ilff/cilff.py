@@ -103,6 +103,9 @@ class CILFFFile:
     def __del__(self):
         self.close()
 
+    def __str__(self):
+        return f'CILFFFile("{self.fname}", nlines={self.nlines()}, @{self.handle})'
+
     def remove(self, name=None):
         if type(self) == str:
             name = self
@@ -176,9 +179,6 @@ class CILFFFile:
         self.lib.ilffGetLines(self.handle, lnnum, nlines, lndata, rlens, nlines)
         lines = [ln.decode(self.encoding) for ln in lndata]
         return lines
-
-    def getlines2(self, start, nlines):
-        return [ self.getline(start+ln) for ln in range(nlines) ]
 
     def getlinestxt(self, start, nlines):
         rlen = c_long()

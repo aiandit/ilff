@@ -510,6 +510,43 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   return 0;
 }
 
+int ilffEraseLine(ILFFFile* ilff_, int64_t lnnum, char const* repl, int64_t repllen) {
+  ILFF* ilff = (ILFF*) ilff_;
+
+  if (repllen < 0) {
+    return -1;
+  }
+
+  ILFF_addr_t idx1, idx2;
+
+  readindex(ilff, lnnum,         &idx1, &idx2);
+
+  ILFF_addr_t ln = idx2 - idx1 - 1 - repllen;
+
+  if (ln < 0) {
+    ln = 0;
+  }
+
+  int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
+
+  if (repllen > 0) {
+    fwrite(repl, 1, min(repllen, idx2 - idx1 - 1), ilff->mainFile);
+  }
+
+  if (ln > 0) {
+    char* buf = malloc(ln);
+    memset(buf, ' ', ln);
+    fwrite(buf, 1, ln, ilff->mainFile);
+    free(buf);
+  }
+
+  if (!ilff->readonly) {
+    fseek(ilff->mainFile, 0, SEEK_END);
+  }
+
+  return 0;
+}
+
 int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index) {
   ILFF* ilff = (ILFF*) ilff_;
 
