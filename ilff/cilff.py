@@ -20,7 +20,7 @@ def configLib(lib):
     lib.ilffFlush.restype = c_int
 
     lib.ilffTruncate.argtypes = (c_void_p,)
-    lib.ilffTruncate.restype = c_long
+    lib.ilffTruncate.restype = c_int
 
     lib.ilffWrite.argtypes = (c_void_p, c_char_p, c_long)
     lib.ilffWrite.restype = c_int
@@ -41,13 +41,13 @@ def configLib(lib):
     lib.ilffNLines.restype = c_long
 
     lib.ilffCheck.argtypes = (c_void_p,)
-    lib.ilffCheck.restype = c_long
+    lib.ilffCheck.restype = c_int
 
     lib.ilffReindex.argtypes = (c_void_p,)
-    lib.ilffReindex.restype = c_long
+    lib.ilffReindex.restype = c_int
 
     lib.ilffDumpindex.argtypes = (c_void_p,)
-    lib.ilffDumpindex.restype = c_long
+    lib.ilffDumpindex.restype = c_int
 
     lib.ilffRemove.argtypes = (c_char_p,)
     lib.ilffRemove.restype = c_int
