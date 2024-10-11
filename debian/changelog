@@ -1,3 +1,10 @@
+ilff (0.7.8-1) fionec-unstable; urgency=medium
+
+  * Supoort for arbitrary record sep, write accepts any amount of data (lines)
+  * New version 0.7.8
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 11 Oct 2024 11:50:22 +0200
+
 ilff (0.7.6-1) fionec-unstable; urgency=medium
 
   * Perform some simple checks on the index consistency when opening
