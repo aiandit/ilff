@@ -19,7 +19,6 @@ class ILFFFile:
     bsep = b'\n'
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True, sep='\n'):
-#        print('*** create: %s, append=%s' % (fname,append,))
         self.fname = fname
         if encoding is not None:
             self.encoding = encoding
@@ -35,13 +34,11 @@ class ILFFFile:
         elif mode == 'a' or mode == 'a+':
             umode = 'a+'
         umode += 'b'
-#        print('open %s with mode %s' %(self.fname, umode))
         self.file = open(self.fname, mode + 'b')
         if symlinks and os.path.islink(self.fname):
             self.realfname = os.readlink(self.fname)
             if not os.path.isabs(self.realfname):
                 self.realfname = os.path.join(os.path.dirname(self.fname), self.realfname)
-                # print(f'readlink: {self.fname} => {self.realfname}')
         else:
             self.realfname = self.fname
         (base, notdir) = os.path.split(self.realfname)
@@ -51,7 +48,6 @@ class ILFFFile:
         except:
             pass
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
-        # print(f'index file: {self.fname} => {self.idxfilen}')
         if not os.path.exists(self.idxfilen):
             self.isILFF = False
         if self.isILFF or self.mode != 'r':
@@ -215,7 +211,6 @@ class ILFFFile:
     def getline(self, lnnum):
         (idx, idx2) = self.readindex(lnnum)
         len = idx2 - idx
-        # print('*** gl: %d,%d,%d,%d' % (lnnum,idx,idx2,len))
         if len == 0:
             return ""
         self.file.seek(idx)
@@ -255,7 +250,6 @@ class ILFFFile:
         for i in range(3):
             self.idxfile.seek(i*self.indexBytes)
             idx = readindex()
-            # print('%d: %d - %d' % (i, idx, len))
 
     def dumpindex(self):
         print('Number of Lines: ', self.get_nlines())
@@ -265,7 +259,6 @@ class ILFFFile:
             print('%d: %d - %d (%d)' % (i, idx1, idx2, ln))
 
     def eraseLine(self, ind, repl=""):
-        #        print('*** al %d: %d,%d' % (self.nlines,self.idxfile.tell(), self.lenfile.tell()))
         (idx, idx2) = self.readindex(ind)
         ln = idx2 - idx
         self.file.seek(idx)
