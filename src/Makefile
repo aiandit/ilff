@@ -7,13 +7,18 @@ sources = ilff.c
 
 objects = $(patsubst %.c, %.o, $(sources))
 
+DLIB_SUFF = .so
+ifeq ($(OS),Windows_NT)
+DLIB_SUFF = .dll
+endif
+
 LIB = $(LIBNAME).a
-DLIB = $(LIBNAME).so
+DLIB = $(LIBNAME)$(DLIB_SUFF)
 
 ifeq ($(CFLAGS),)
 CFLAGS = -O3
 endif
-CFLAGS += -Wall -Wextra -fPIC
+CFLAGS += -m64 -Wall -Wextra -fPIC
 
 
 all: build-lib
@@ -38,4 +43,7 @@ install: $(LIB) $(DLIB)
 uninstall:
 	rm -rf $(INSTDIR)/include/ilff.h
 	rm -rf $(INSTDIR)/lib/ilff.a
-	rm -rf $(INSTDIR)/lib/ilff.so
+	rm -rf $(INSTDIR)/lib/ilff$(DLIB_SUFF)
+
+clean:
+	rm -rf ilff.a ilff$(DLIB_SUFF) *.o
