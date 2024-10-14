@@ -338,6 +338,9 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   if (ilff->nlines > 0) {
     fseek(ilff->indexFile, (ilff->nlines-1)*ILFF_ADDRSZ, SEEK_SET);
     readint(ilff->indexFile, &ilff->idx);
+#ifdef IS_WINDOWS
+    fseek(ilff->indexFile, 0, SEEK_END);
+#endif
   }
 
   if (flags & eILFFFlagCheck) {
