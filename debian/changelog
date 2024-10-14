@@ -1,3 +1,10 @@
+ilff (0.8.0-1) fionec-unstable; urgency=medium
+
+  * Compile with MinGW on Windows
+  * new version 0.8.0
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 14 Oct 2024 14:36:28 +0200
+
 ilff (0.7.8-1) fionec-unstable; urgency=medium
 
   * Supoort for arbitrary record sep, write accepts any amount of data (lines)
