@@ -59,7 +59,8 @@ def getLib():
     lib = None
     mfile = sys.modules['ilff.cilff'].__file__
     csrcdir = os.path.join(os.path.dirname(mfile), '..', 'src')
-    libnames = ['ilff', os.path.join(csrcdir, 'ilff')]
+    libnames = ['ilff', os.path.join(csrcdir, 'ilff'),
+                'libilff.so', os.path.join(csrcdir, 'libilff.so')]
     for name in libnames:
         try:
             lib = CDLL(name)
