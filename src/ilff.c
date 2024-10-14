@@ -18,7 +18,6 @@ typedef int64_t ILFF_addr_t;
 
 #if defined WIN32 || defined WIN64
 #define IS_WINDOWS 1
-#warning windows
 #endif
 
 #if _POSIX_C_SOURCE >= 200809L && !defined IS_WINDOWS
