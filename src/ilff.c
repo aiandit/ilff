@@ -401,7 +401,7 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   int rci = readindex(ilff, lnnum, &idx1, &idx2);
   if (rci != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to read index for line %ld: %s\n",
+	    "ILFF: Error: Failed to read index for line %lld: %s\n",
 	    lnnum, strerror(errno));
     *nChars = 0;
     return -1;
@@ -461,7 +461,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
   rcs = fseek(ilff->mainFile, index[0], SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    "ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 	    index[0], lnnum, strerror(errno));
     return -1;
   }
@@ -477,7 +477,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
     if (rcr != rlen) {
       fprintf(stderr,
-	      "ILFF: Error: Failed to read file at line %ld: %s\n",
+	      "ILFF: Error: Failed to read file at line %lld: %s\n",
 	      lnnum + i, strerror(errno));
       res = -1;
       break;
@@ -487,7 +487,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
       rcs = fseek(ilff->mainFile, index[i], SEEK_SET);
       if (rcs != 0) {
 	fprintf(stderr,
-		"ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+		"ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 		index[i], lnnum, strerror(errno));
 	return -1;
       }
@@ -526,7 +526,7 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    "ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 	    idx1, lnnum, strerror(errno));
     return -1;
   }
@@ -558,7 +558,7 @@ int ilffEraseLine(ILFFFile* ilff_, int64_t lnnum, char const* repl, int64_t repl
     ln = 0;
   }
 
-  int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
+  fseek(ilff->mainFile, idx1, SEEK_SET);
 
   if (repllen > 0) {
     fwrite(repl, 1, min(repllen, idx2 - idx1 - 1), ilff->mainFile);
@@ -588,7 +588,7 @@ int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index
   int rcs = fseek(ilff->indexFile, lnnum*ILFF_ADDRSZ, SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek index file to offset %ld: %s\n",
+	    "ILFF: Error: Failed to seek index file to offset %lld: %s\n",
 	    lnnum*ILFF_ADDRSZ, strerror(errno));
     return -2;
   }
@@ -721,10 +721,10 @@ int ilffDumpindex(ILFFFile *ilff_) {
     ILFF_addr_t offs = i*chunkSize;
     ilffGetIndex(ilff_, offs, readsize, index);
 
-    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
+    fprintf(stdout, "%lld: %lld - %lld (%lld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
 
     for (int ln = 1; ln < readsize; ++ln) {
-      fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
+      fprintf(stdout, "%lld: %lld - %lld (%lld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
     }
 
     lastIdx = index[chunkSize - 1];
