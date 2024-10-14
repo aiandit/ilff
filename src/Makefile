@@ -7,18 +7,20 @@ sources = ilff.c
 
 objects = $(patsubst %.c, %.o, $(sources))
 
+DLIB_PREF = lib
 DLIB_SUFF = .so
 ifeq ($(OS),Windows_NT)
+DLIB_PREF =
 DLIB_SUFF = .dll
 endif
 
-LIB = $(LIBNAME).a
-DLIB = $(LIBNAME)$(DLIB_SUFF)
+LIB = $(DLIB_PREF)$(LIBNAME).a
+DLIB = $(DLIB_PREF)$(LIBNAME)$(DLIB_SUFF)
 
 ifeq ($(CFLAGS),)
 CFLAGS = -O3
 endif
-CFLAGS += -m64 -Wall -Wextra -fPIC
+CFLAGS += -Wall -Wextra -fPIC
 
 
 all: build-lib
