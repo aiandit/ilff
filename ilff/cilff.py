@@ -2,9 +2,11 @@ import os, sys, shutil, errno
 
 from .ilff import ILFFError
 
-from ctypes import CDLL, POINTER, c_int, c_long, c_char_p, c_void_p
+from ctypes import CDLL, POINTER, c_int, c_int64, c_char_p, c_void_p
 
-c_long_p = POINTER(c_long)
+c_iladdr = c_int64
+c_iladdr_p = POINTER(c_iladdr)
+
 c_char_pp = POINTER(c_char_p)
 
 
@@ -20,34 +22,34 @@ def configLib(lib):
     lib.ilffFlush.restype = c_int
 
     lib.ilffTruncate.argtypes = (c_void_p,)
-    lib.ilffTruncate.restype = c_long
+    lib.ilffTruncate.restype = c_int
 
-    lib.ilffWrite.argtypes = (c_void_p, c_char_p, c_long)
+    lib.ilffWrite.argtypes = (c_void_p, c_char_p, c_iladdr)
     lib.ilffWrite.restype = c_int
 
-    lib.ilffWriteLine.argtypes = (c_void_p, c_char_p, c_long)
+    lib.ilffWriteLine.argtypes = (c_void_p, c_char_p, c_iladdr)
     lib.ilffWrite.restype = c_int
 
-    lib.ilffGetLine.argtypes = (c_void_p, c_long, c_char_p, c_long_p)
+    lib.ilffGetLine.argtypes = (c_void_p, c_iladdr, c_char_p, c_iladdr_p)
     lib.ilffGetLine.restype = c_int
 
-    lib.ilffGetLines.argtypes = (c_void_p, c_long, c_long, c_char_pp, c_long_p)
+    lib.ilffGetLines.argtypes = (c_void_p, c_iladdr, c_iladdr, c_char_pp, c_iladdr_p)
     lib.ilffGetLines.restype = c_int
 
-    lib.ilffGetRange.argtypes = (c_void_p, c_long, c_long, c_char_p, c_long_p)
+    lib.ilffGetRange.argtypes = (c_void_p, c_iladdr, c_iladdr, c_char_p, c_iladdr_p)
     lib.ilffGetRange.restype = c_int
 
     lib.ilffNLines.argtypes = (c_void_p,)
-    lib.ilffNLines.restype = c_long
+    lib.ilffNLines.restype = c_iladdr
 
     lib.ilffCheck.argtypes = (c_void_p,)
-    lib.ilffCheck.restype = c_long
+    lib.ilffCheck.restype = c_int
 
     lib.ilffReindex.argtypes = (c_void_p,)
-    lib.ilffReindex.restype = c_long
+    lib.ilffReindex.restype = c_int
 
     lib.ilffDumpindex.argtypes = (c_void_p,)
-    lib.ilffDumpindex.restype = c_long
+    lib.ilffDumpindex.restype = c_int
 
     lib.ilffRemove.argtypes = (c_char_p,)
     lib.ilffRemove.restype = c_int
@@ -57,7 +59,8 @@ def getLib():
     lib = None
     mfile = sys.modules['ilff.cilff'].__file__
     csrcdir = os.path.join(os.path.dirname(mfile), '..', 'src')
-    libnames = ['ilff.so', os.path.join(csrcdir, 'ilff.so')]
+    libnames = ['ilff', os.path.join(csrcdir, 'ilff')] if os.name == "nt" else \
+        ['libilff.so', os.path.join(csrcdir, 'libilff.so')]
     for name in libnames:
         try:
             lib = CDLL(name)
@@ -161,7 +164,7 @@ class CILFFFile:
                     break
 
     def getline(self, lnnum):
-        rlen = c_long()
+        rlen = c_iladdr()
         self.lib.ilffGetLine(self.handle, lnnum, None, rlen)
         if rlen.value < 0:
             raise CILFFError('got negative line size')
@@ -171,7 +174,7 @@ class CILFFFile:
         return tln
 
     def getlines(self, lnnum, nlines):
-        rlens = (c_long * nlines)()
+        rlens = (c_iladdr * nlines)()
         self.lib.ilffGetLines(self.handle, lnnum, nlines, None, rlens, nlines)
         lndata = (c_char_p * nlines)()
         for (i, rlen) in enumerate(rlens):
@@ -181,7 +184,7 @@ class CILFFFile:
         return lines
 
     def getlinestxt(self, start, nlines):
-        rlen = c_long()
+        rlen = c_iladdr()
         self.lib.ilffGetRange(self.handle, start, nlines, None, rlen)
         bln = b' ' * rlen.value
         self.lib.ilffGetRange(self.handle, start, nlines, bln, rlen)
