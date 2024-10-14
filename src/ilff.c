@@ -641,15 +641,22 @@ int ilffCheckPrint(ILFFFile *ilff_, int res) {
 #ifdef IS_WINDOWS
 ssize_t getline(char** lineptr, size_t* n, FILE* stream) {
   memset(*lineptr, '\n', *n);
-  char* fgr = 0;
 
   while(1) {
     char* fgr = fgets(*lineptr, *n, stream);
-    int s = 0;
+    if (fgr == 0) {
+      if (!feof(stream)) {
+        fprintf(stderr,
+                "ILFF: Error: fgets n=%lld at offs=%ld, failed: %s, feof=%d, Ferr=%d\n",
+                *n, ftell(stream), strerror(errno), feof(stream), ferror(stream));
+      }
+      return -1;
+    }
+    size_t s = 0;
     for ( ; s < *n && fgr[s] != '\n'; ++s) {
     }
     if (s < *n) {
-      return s;
+      return feof(stream) ? (s > 0 ? s - 1 : s) : s + 1;
     } else {
       *lineptr = realloc(*lineptr, *n * 2);
       memset(*lineptr + *n, '\n', *n);
