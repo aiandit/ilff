@@ -1,3 +1,9 @@
+ilff (0.8.2-2) fionec-unstable; urgency=medium
+
+  * Fix dependency of python pkg on libilff0
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 16 Oct 2024 16:37:51 +0200
+
 ilff (0.8.2-1) fionec-unstable; urgency=medium
 
   * Build shared lib with version info and SONAME

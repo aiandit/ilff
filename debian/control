@@ -9,7 +9,7 @@ Rules-Requires-Root: no
 
 Package: python3-ilff
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3, ilff
+Depends: ${python3:Depends}, ${misc:Depends}, python3, libilff0
 Description: Indexed line file format (ILFF) for Python
  Indexed line file format (ILFF) for Python is a lightweight package
  for writing and reading line-based files with an index. Writing is
