@@ -18,7 +18,7 @@ Description: Indexed line file format (ILFF) for Python
  efficiently regardless of the length of the file. Re-indexing an
  existing file can be achieved with the ilff-reindex command.
 
-Package: ilff
+Package: libilff0
 Architecture: any
 Depends:
 Description: Indexed line file format (ILFF) for C
@@ -29,8 +29,8 @@ Description: Indexed line file format (ILFF) for C
  regardless of the length of the file. Re-indexing an existing file
  can be achieved with the reindex function.
 
-Package: ilff-dev
+Package: libilff-dev
 Architecture: any
-Depends: ilff (=${binary:Version})
+Depends: libilff0 (=${binary:Version})
 Description: Indexed line file format (ILFF) for C
  Development files for the ILFF C library.
