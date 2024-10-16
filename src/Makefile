@@ -55,13 +55,13 @@ install: $(LIB) $(DLIB)
 	install -m 644 $(LIB) $(LIBDIR)
 	install -m 755 $(DLIB) $(LIBDIR)
 ifneq ($(OS),Windows_NT)
-	install -m 755 libilff.so libilff.so.0 $(LIBDIR)
+	cp -d libilff.so libilff.so.0 $(LIBDIR)
 endif
 
 uninstall:
 	rm -rf $(INSTDIR)/include/ilff.h
-	rm -rf $(LIBDIR)/ilff.a
-	rm -rf $(LIBDIR)/ilff$(DLIB_SUFF)
+	rm -rf $(LIBDIR)/libilff.a
+	rm -rf $(LIBDIR)/libilff$(DLIB_SUFF)
 ifneq ($(OS),Windows_NT)
 	rm -rf $(LIBDIR)/libilff.so $(LIBDIR)/libilff.so.0
 endif
