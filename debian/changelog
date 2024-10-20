@@ -1,3 +1,24 @@
+ilff (0.8.2-2) fionec-unstable; urgency=medium
+
+  * Fix dependency of python pkg on libilff0
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 16 Oct 2024 16:37:51 +0200
+
+ilff (0.8.2-1) fionec-unstable; urgency=medium
+
+  * Build shared lib with version info and SONAME
+  * Update binary pkg names to libilff0 and libilff-dev
+  * New version 0.8.2
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 16 Oct 2024 16:14:06 +0200
+
+ilff (0.8.0-1) fionec-unstable; urgency=medium
+
+  * Compile with MinGW on Windows
+  * new version 0.8.0
+
+ -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 14 Oct 2024 14:36:28 +0200
+
 ilff (0.7.8-1) fionec-unstable; urgency=medium
 
   * Supoort for arbitrary record sep, write accepts any amount of data (lines)

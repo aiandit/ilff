@@ -16,6 +16,14 @@ typedef int64_t ILFF_addr_t;
 #define ILFF_INDEX_DIR ".ilff-index"
 #define ILFF_INDEX_SUFF ".idx"
 
+#if defined WIN32 || defined WIN64
+#define IS_WINDOWS 1
+#endif
+
+#if _POSIX_C_SOURCE >= 200809L && !defined IS_WINDOWS
+#define HAVE_ST_MTIM
+#endif
+
 #define min(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
@@ -138,13 +146,18 @@ static ILFF_addr_t get_nlines(ILFF* ilff) {
   return fileSize(ilff->indexFile)/ILFF_ADDRSZ;
 }
 
-#define getTime(tv) (tv.tv_sec + 1e-9 * tv.tv_nsec)
+#ifdef HAVE_ST_MTIM
+#define getTime(tv) (stf->st_mtim.tv_sec + 1e-9 * stf->st_mtim.tv_nsec)
+#else
+#define getTime(tv) (stf->st_mtime)
+#endif
+
 static double mtimeDiff(ILFF* ilff, struct stat* stf) {
   struct stat sti;
 
   fstat(fileno(ilff->mainFile), stf);
   fstat(fileno(ilff->indexFile), &sti);
-  return getTime(stf->st_mtim) - getTime(sti.st_mtim);
+  return getTime(stf) - getTime(sti);
 }
 
 static char* getIndexFileName(char const *name, int createIndexDir) {
@@ -169,7 +182,12 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   offs += sizeof(ILFF_INDEX_DIR) - 1;
 
   if (createIndexDir) {
-    int rcmd = mkdir(indexFileName, 0755);
+    int rcmd = mkdir(indexFileName
+#ifdef IS_WINDOWS
+#else
+                     , 0755
+#endif
+                     );
     if (rcmd && errno != EEXIST) {
       fprintf(stderr,
 	      "ILFF: Error: Failed to create index directory %s: %s\n",
@@ -192,6 +210,8 @@ static char* getIndexFileName(char const *name, int createIndexDir) {
   return indexFileName;
 }
 
+#ifdef IS_WINDOWS
+#else
 static char* readlinkILFF(char const *name) {
   int bufsz = 4096;
   char* namebuf = malloc(bufsz);
@@ -239,6 +259,7 @@ static char* readlinkILFF(char const *name) {
 
   return pathbuf;
 }
+#endif
 
 static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ILFF *ilff = allocILFF();
@@ -247,6 +268,9 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   ilff->mode = strdup(mode);
   ilff->readonly = strcmp(mode, "r") == 0;
 
+#ifdef IS_WINDOWS
+  ilff->indexFileName = getIndexFileName(name, 1);
+#else
   if (flags & eILFFFlagSymlinks) {
     char const* namebuf = name;
     struct stat stm;
@@ -265,13 +289,14 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   } else {
     ilff->indexFileName = getIndexFileName(name, 1);
   }
+#endif
 
   if (ilff->indexFileName == 0) {
     closeILFF(ilff);
     return 0;
   }
 
-  char mymode[4] = {0};
+  char mymode[6] = {0};
   int nmode = 0;
   mymode[nmode] = mode[0];
   ++nmode;
@@ -292,8 +317,11 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   }
 
   if (mode[0] == 'a') {
-    mymode[nmode-1] = '+';
+    nmode = 1;
+    mymode[nmode] = '+';
+    ++nmode;
     mymode[nmode] = 'b';
+    ++nmode;
   }
 
   ilff->indexFile = fopen(ilff->indexFileName, mymode);
@@ -310,6 +338,9 @@ static ILFF* openILFF(char const *name, char const *mode, int flags) {
   if (ilff->nlines > 0) {
     fseek(ilff->indexFile, (ilff->nlines-1)*ILFF_ADDRSZ, SEEK_SET);
     readint(ilff->indexFile, &ilff->idx);
+#ifdef IS_WINDOWS
+    fseek(ilff->indexFile, 0, SEEK_END);
+#endif
   }
 
   if (flags & eILFFFlagCheck) {
@@ -370,7 +401,7 @@ int ilffGetLine(ILFFFile* ilff_, int64_t lnnum, char*data, int64_t* nChars) {
   int rci = readindex(ilff, lnnum, &idx1, &idx2);
   if (rci != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to read index for line %ld: %s\n",
+	    "ILFF: Error: Failed to read index for line %lld: %s\n",
 	    lnnum, strerror(errno));
     *nChars = 0;
     return -1;
@@ -430,7 +461,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
   rcs = fseek(ilff->mainFile, index[0], SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    "ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 	    index[0], lnnum, strerror(errno));
     return -1;
   }
@@ -446,7 +477,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
 
     if (rcr != rlen) {
       fprintf(stderr,
-	      "ILFF: Error: Failed to read file at line %ld: %s\n",
+	      "ILFF: Error: Failed to read file at line %lld: %s\n",
 	      lnnum + i, strerror(errno));
       res = -1;
       break;
@@ -456,7 +487,7 @@ int ilffGetLines(ILFFFile* ilff_, int64_t const lnnum, int64_t const N, char** d
       rcs = fseek(ilff->mainFile, index[i], SEEK_SET);
       if (rcs != 0) {
 	fprintf(stderr,
-		"ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+		"ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 		index[i], lnnum, strerror(errno));
 	return -1;
       }
@@ -495,7 +526,7 @@ int ilffGetRange(ILFFFile *ilff_, int64_t lnnum, int64_t N, char* data, int64_t*
   int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek file to %ld at line %ld: %s\n",
+	    "ILFF: Error: Failed to seek file to %lld at line %lld: %s\n",
 	    idx1, lnnum, strerror(errno));
     return -1;
   }
@@ -527,7 +558,7 @@ int ilffEraseLine(ILFFFile* ilff_, int64_t lnnum, char const* repl, int64_t repl
     ln = 0;
   }
 
-  int rcs = fseek(ilff->mainFile, idx1, SEEK_SET);
+  fseek(ilff->mainFile, idx1, SEEK_SET);
 
   if (repllen > 0) {
     fwrite(repl, 1, min(repllen, idx2 - idx1 - 1), ilff->mainFile);
@@ -557,7 +588,7 @@ int ilffGetIndex(ILFFFile* ilff_, int64_t lnnum, int64_t const N, int64_t* index
   int rcs = fseek(ilff->indexFile, lnnum*ILFF_ADDRSZ, SEEK_SET);
   if (rcs != 0) {
     fprintf(stderr,
-	    "ILFF: Error: Failed to seek index file to offset %ld: %s\n",
+	    "ILFF: Error: Failed to seek index file to offset %lld: %s\n",
 	    lnnum*ILFF_ADDRSZ, strerror(errno));
     return -2;
   }
@@ -606,6 +637,37 @@ int ilffCheckPrint(ILFFFile *ilff_, int res) {
   }
   return 0;
 }
+
+#ifdef IS_WINDOWS
+ssize_t getline(char** lineptr, size_t* n, FILE* stream) {
+  memset(*lineptr, '\n', *n);
+
+  while(1) {
+    char* fgr = fgets(*lineptr, *n, stream);
+    if (fgr == 0) {
+      if (!feof(stream)) {
+        fprintf(stderr,
+                "ILFF: Error: fgets n=%lld at offs=%ld, failed: %s, feof=%d, Ferr=%d\n",
+                *n, ftell(stream), strerror(errno), feof(stream), ferror(stream));
+      }
+      return -1;
+    }
+    size_t s = 0;
+    for ( ; s < *n && fgr[s] != '\n'; ++s) {
+    }
+    if (s < *n) {
+      return feof(stream) ? (s > 0 ? s - 1 : s) : s + 1;
+    } else {
+      *lineptr = realloc(*lineptr, *n * 2);
+      memset(*lineptr + *n, '\n', *n);
+      *n *= 2;
+    }
+  }
+
+  return 0;
+}
+
+#endif
 
 int ilffReindex(ILFFFile *ilff_) {
   ILFF* ilff = (ILFF*) ilff_;
@@ -659,10 +721,10 @@ int ilffDumpindex(ILFFFile *ilff_) {
     ILFF_addr_t offs = i*chunkSize;
     ilffGetIndex(ilff_, offs, readsize, index);
 
-    fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
+    fprintf(stdout, "%lld: %lld - %lld (%lld)\n", offs, lastIdx, index[0], index[0] - lastIdx);
 
     for (int ln = 1; ln < readsize; ++ln) {
-      fprintf(stdout, "%ld: %ld - %ld (%ld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
+      fprintf(stdout, "%lld: %lld - %lld (%lld)\n", offs + ln, index[ln-1], index[ln], index[ln] - index[ln - 1]);
     }
 
     lastIdx = index[chunkSize - 1];
