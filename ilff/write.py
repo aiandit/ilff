@@ -4,20 +4,17 @@ import argparse
 from . import VERSION
 
 
-def parseargs():
-  parser = argparse.ArgumentParser(description='Append line(s) to ILFF file.')
+def setargs(parser):
+    parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
-  parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
-
-  parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
-  parser.add_argument('line', type=str, help='line to append')
-
-  args = parser.parse_args()
-  return args
+    parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
+    parser.add_argument('line', type=str, help='line to append')
 
 
 def run():
-    args = parseargs()
+    parser = argparse.ArgumentParser(description='Append line(s) to ILFF file.')
+    setargs(parser)
+    args = parser.parse_args()
 
     fname = args.infile
 
