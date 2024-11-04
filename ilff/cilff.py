@@ -144,9 +144,20 @@ class CILFFFile:
     def get_nlines(self):
         return self.nlines()
 
+    def writeLines(self, txt):
+        if isinstance(txt, list):
+            self.write(txt)
+        else:
+            lines = txt.split(self.sep)
+            if len(lines[-1]) == 0:
+                lines = lines[0:-1]
+            self.write([v + self.sep for v in lines])
+
     def write(self, txt):
-        b = txt.encode(self.encoding)
-        return self.lib.ilffWrite(self.handle, b, len(b))
+        if isinstance(txt, list):
+            return any([self.appendLine(v) for v in txt])
+        else:
+            return self.appendLine(txt)
 
     def appendLine(self, txt):
         b = txt.encode(self.encoding)

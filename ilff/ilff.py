@@ -16,14 +16,12 @@ class ILFFFile:
     file = None
     idxfile = None
     sep = '\n'
-    bsep = b'\n'
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True, sep='\n'):
         self.fname = fname
         if encoding is not None:
             self.encoding = encoding
         self.sep = sep
-        self.bsep = self.sep.encode(self.encoding)
         self.mode = mode
         if mode == 'r':
             umode = 'r'
@@ -143,22 +141,28 @@ class ILFFFile:
     def get_nlines(self):
         return self.nlines()
 
+    def writeLines(self, txt):
+        if isinstance(txt, list):
+            self.write(txt)
+        else:
+            lines = txt.split(self.sep)
+            if len(lines[-1]) == 0:
+                lines = lines[0:-1]
+            self.write([v + self.sep for v in lines])
+
     def write(self, txt):
-        lns = txt.split(self.sep)
-        if len(txt) >= len(self.sep) and txt[len(txt) - len(self.sep):] == self.sep:
-            lns = lns[0:-1]
-        [self.appendLine(ln) for ln in lns]
+        if isinstance(txt, list):
+            [self.appendLine(v) for v in txt]
+        else:
+            self.appendLine(txt)
 
     def appendLine(self, txt):
-        llen = len(txt)
-        if llen >= len(self.sep) and txt[llen - len(self.sep):] == self.sep:
-            txt = txt[0:-len(self.sep)]
         txtdata = txt.encode(self.encoding)
-        llen = len(txtdata) + len(self.bsep)
+        llen = len(txtdata)
         newidx = self.idx + llen
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
-        self.file.write(txtdata + self.bsep)
+        self.file.write(txtdata)
         self._nlines += 1
         tdiff, _ = self.checkFileTimes(False)
         if tdiff > self.maxmtimediff:
