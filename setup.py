@@ -197,6 +197,7 @@ setup(
             'ilff-getlines=ilff.getlines:run',
             'ilff-getlinestxt=ilff.getlinestxt:run',
             'ilff-cleanindex=ilff.cleanindex:run',
+            'ilff-write=ilff.write:run',
         ],
     },
 
