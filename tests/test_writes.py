@@ -3,6 +3,7 @@ import unittest
 import os
 import sys
 import uuid
+import json
 
 sys.path.append('..')
 
@@ -40,7 +41,7 @@ class TestILFFWrites1(unittest.TestCase):
 
     def test_02_write(self):
         ilf = ilff.ILFFFile('test.ilff', mode='w')
-        rc = [*map(lambda x: ilf.appendLine(x), self.lines)]
+        rc = [*map(lambda x: ilf.write(x), self.linesnl)]
         self.assertTrue(os.path.exists('test.ilff'))
         self.assertTrue(ilf.nlines() == 3)
         ilf.dumpindex()
@@ -112,7 +113,7 @@ class TestILFFWrites2(unittest.TestCase):
 
     def test_01_append(self):
         ilf = ilff.ILFFFile('test.ilff', mode='w')
-        r = [*map(lambda x: ilf.appendLine(x), self.lines)]
+        r = [*map(lambda x: ilf.write(x), self.linesnl)]
         self.assertTrue(os.path.exists('test.ilff'))
         self.assertTrue(ilf.nlines() == 3)
         ilf.close()
@@ -127,7 +128,7 @@ class TestILFFWrites2(unittest.TestCase):
 
     def test_03_append(self):
         ilf = ilff.ILFFFile('test.ilff', mode='a')
-        r = [*map(lambda x: ilf.appendLine(x), self.lines)]
+        ilf.write(self.linesnl)
         self.assertTrue(os.path.exists('test.ilff'))
         self.assertTrue(ilf.nlines() == 6)
         ilf.close()
@@ -295,7 +296,7 @@ class TestILFFWrites5(unittest.TestCase):
         ilf.write(self.lines[3])
         assert l == self.linesnl[1]
         assert ilf.nlines() == 4
-        assert ilf.getline(3) == self.lines[3] + '\n'
+        assert ilf.getline(3) == self.lines[3]
         ilf.close()
 
 
@@ -350,7 +351,7 @@ class TestILFFWrites6(unittest.TestCase):
         self.lines += ['dddddddd dddddddd ddddd dddd', 'eeeee eeeeee eeeeeee eeeeee']
         ilf.write(self.lines[3])
         ilf.eraseLine(1)
-        ilf.write(self.lines[4])
+        ilf.write(self.lines[4] + '\n')
         assert ilf.nlines() == 4
         ilf.close()
 
@@ -365,7 +366,7 @@ class TestILFFWrites6(unittest.TestCase):
             if i == 1:
                 self.assertTrue(l.strip() == '')
             if i == 2:
-                self.assertTrue(l == self.lines[3] + '\n')
+                self.assertTrue(l == self.lines[3])
             if i == 3:
                 self.assertTrue(l == self.lines[4] + '\n')
 
@@ -383,7 +384,7 @@ class TestILFFWrites7(unittest.TestCase):
 
     def test_01_write(self):
         ilf = ilff.ILFFFile(self.fname, 'w')
-        ilf.write(self.txt)
+        ilf.write(self.linesnl)
         assert ilf.nlines() == len(self.lines)
         ilf.close()
 
@@ -410,7 +411,7 @@ class TestILFFWrites8(unittest.TestCase):
 
     def test_01_write(self):
         ilf = ilff.ILFFFile(self.fname, 'w', sep=self.sep)
-        ilf.write(self.txt)
+        ilf.writeLines(self.txt)
         assert ilf.nlines() == len(self.lines)
         ilf.close()
 
@@ -443,7 +444,7 @@ class TestILFFWrites9(unittest.TestCase):
 
     def test_01_write(self):
         ilf = ilff.ILFFFile(self.fname, 'w', sep=self.sep, encoding=self.enc)
-        ilf.write(self.txt)
+        ilf.writeLines(self.txt)
         assert ilf.nlines() == len(self.lines)
         ilf.close()
 
@@ -495,7 +496,7 @@ class TestILFFWrites10(unittest.TestCase):
 
     def test_01_write(self):
         ilf = ilff.ILFFFile(self.fname, 'w', sep=self.sep, encoding=self.enc)
-        ilf.write(self.txt)
+        ilf.writeLines(self.txt)
         ilf.dumpindex()
         assert ilf.nlines() == len(self.lines)
         ilf.close()
@@ -512,6 +513,47 @@ class TestILFFWrites10(unittest.TestCase):
         ilf = ilff.ILFFFile(self.fname, encoding=self.enc)
         print(ilf.getlinestxt(0, len(self.lines)))
         print(ilf.getlines(0, len(self.lines)))
+
+
+class TestILFFWrites11(unittest.TestCase):
+
+    sep = '\n'
+    data = [dict(a=1,b=2,c=3),
+            dict(d=1,e=2,f=3),
+            dict(g=11,h=12,i=13)]
+    lines = [json.dumps(v, indent=None) for v in data]
+    linesnl = [l + '\n' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'utf8'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        print(self.lines)
+        print(self.linesnl)
+        ilf = ilff.ILFFFile(self.fname, 'w', sep=self.sep, encoding=self.enc)
+        [ilf.write(record) for record in self.lines]
+        ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        ilf.close()
+
+    def test_02_get1(self):
+        ilf = ilff.ILFFFile(self.fname, encoding=self.enc)
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = ilf.getline(i)
+            assert l == self.lines[i]
+            d = json.loads(l)
+            assert d == self.data[i]
+        ilf.close()
+
+    def test_03_get2(self):
+        ilf = ilff.ILFFFile(self.fname, encoding=self.enc)
+        print('all text', ilf.getlinestxt(0, len(self.lines)))
+        print('all records', ilf.getlines(0, len(self.lines)))
 
 
 if __name__ == '__main__':
