@@ -1,8 +1,8 @@
 PYTHON ?= python
 
-all: src-pkg wheel-pkg c-libs
+all: wheel-pkg c-libs
 
-src-pkg wheel-pkg:
+dist src-pkg wheel-pkg:
 	$(PYTHON) -m build .
 
 clean:
@@ -100,3 +100,5 @@ check3: $(TESTF) $(TESTFlnk)
 	python3 testgetlns4.py /tmp/subdir/link2.csv
 	python3 testgetlns4.py /tmp/subdir/link3.csv
 	rm -rf /tmp/subdir
+
+.PHONY: dist src-pkg wheel-pkg clean check check2 check3 test
