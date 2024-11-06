@@ -1,10 +1,10 @@
-ilff (0.8.2-2) fionec-unstable; urgency=medium
+ilff (0.8.2-2) unstable; urgency=medium
 
   * Fix dependency of python pkg on libilff0
 
  -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Wed, 16 Oct 2024 16:37:51 +0200
 
-ilff (0.8.2-1) fionec-unstable; urgency=medium
+ilff (0.8.2-1) unstable; urgency=medium
 
   * Build shared lib with version info and SONAME
   * Update binary pkg names to libilff0 and libilff-dev
@@ -12,21 +12,21 @@ ilff (0.8.2-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 16 Oct 2024 16:14:06 +0200
 
-ilff (0.8.0-1) fionec-unstable; urgency=medium
+ilff (0.8.0-1) unstable; urgency=medium
 
   * Compile with MinGW on Windows
   * new version 0.8.0
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 14 Oct 2024 14:36:28 +0200
 
-ilff (0.7.8-1) fionec-unstable; urgency=medium
+ilff (0.7.8-1) unstable; urgency=medium
 
   * Supoort for arbitrary record sep, write accepts any amount of data (lines)
   * New version 0.7.8
 
  -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Fri, 11 Oct 2024 11:50:22 +0200
 
-ilff (0.7.6-1) fionec-unstable; urgency=medium
+ilff (0.7.6-1) unstable; urgency=medium
 
   * Perform some simple checks on the index consistency when opening
   * Add ilffCheck and option to check index on open
@@ -37,14 +37,14 @@ ilff (0.7.6-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 02 Oct 2024 12:38:25 +0200
 
-ilff (0.7.5-1) fionec-unstable; urgency=medium
+ilff (0.7.5-1) unstable; urgency=medium
 
   * Merge ILFFGetlines classes into one, to own module
   * New version 0.7.5
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 30 Sep 2024 09:22:56 +0200
 
-ilff (0.7.4-1) fionec-unstable; urgency=medium
+ilff (0.7.4-1) unstable; urgency=medium
 
   * Add C version of GetLines class
   * Change: return entire lines, do not omit separator \n
@@ -52,21 +52,21 @@ ilff (0.7.4-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 25 Sep 2024 14:49:05 +0200
 
-ilff (0.7.2-1) fionec-unstable; urgency=medium
+ilff (0.7.2-1) unstable; urgency=medium
 
   * Add ilffGetIndex, unlink, less exports, Exceptions on invalid seek
   * New version 0.7.2
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 25 Sep 2024 11:09:16 +0200
 
-ilff (0.7.0-1) fionec-unstable; urgency=medium
+ilff (0.7.0-1) unstable; urgency=medium
 
   * Enhance C impl
   * New version 0.7.0
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 24 Sep 2024 15:19:18 +0200
 
-ilff (0.6.5-1) fionec-unstable; urgency=medium
+ilff (0.6.5-1) unstable; urgency=medium
 
   * Enhance C impl
   * Tests for C impl
@@ -74,45 +74,45 @@ ilff (0.6.5-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 24 Sep 2024 12:14:48 +0200
 
-ilff (0.6.4.2-1) fionec-unstable; urgency=medium
+ilff (0.6.4.2-1) unstable; urgency=medium
 
   * New version 0.6.4.2
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 24 Sep 2024 09:45:36 +0200
 
-ilff (0.6.4.1-1) fionec-unstable; urgency=medium
+ilff (0.6.4.1-1) unstable; urgency=medium
 
   * New version 0.6.4.1
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Mon, 23 Sep 2024 12:56:16 +0200
 
-ilff (0.6.4-1) fionec-unstable; urgency=medium
+ilff (0.6.4-1) unstable; urgency=medium
 
   * New version 0.6.4
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 20 Sep 2024 17:47:00 +0200
 
-ilff (0.6.2-1) fionec-unstable; urgency=medium
+ilff (0.6.2-1) unstable; urgency=medium
 
   * Build binary, devel and python pkg
   * New version 0.6.2
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 20 Sep 2024 17:13:42 +0200
 
-ilff (0.6.0-1) fionec-unstable; urgency=medium
+ilff (0.6.0-1) unstable; urgency=medium
 
   * Add native implementation
   * New version 0.6.0
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Fri, 20 Sep 2024 15:36:41 +0200
 
-ilff (0.5.2-2) fionec-unstable; urgency=medium
+ilff (0.5.2-2) unstable; urgency=medium
 
   * Maintainence release
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Thu, 19 Sep 2024 12:48:24 +0200
 
-ilff (0.5.2-1) fionec-unstable; urgency=medium
+ilff (0.5.2-1) unstable; urgency=medium
 
   * Add proper cmdline interface to remaining tools
   * Add version info to cmdline options
@@ -120,20 +120,20 @@ ilff (0.5.2-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Thu, 19 Sep 2024 12:42:24 +0200
 
-ilff (0.5.0-1) fionec-unstable; urgency=medium
+ilff (0.5.0-1) unstable; urgency=medium
 
   * Add proper cmdline interfaces to tools
   * New version 0.5.0
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 18 Sep 2024 12:04:59 +0200
 
-ilff (0.4.6-1) fionec-unstable; urgency=medium
+ilff (0.4.6-1) unstable; urgency=medium
 
   * New version 0.4.6
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 17 Sep 2024 08:54:12 +0200
 
-ilff (0.4.5-1) fionec-unstable; urgency=medium
+ilff (0.4.5-1) unstable; urgency=medium
 
   * Ensure index file is flushed often enough
   * Add tool for cleaning up stale index files
@@ -147,7 +147,7 @@ ilff (0.4.5-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Tue, 29 Aug 2023 13:22:34 +0200
 
-ilff (0.4.1-1) fionec-unstable; urgency=medium
+ilff (0.4.1-1) unstable; urgency=medium
 
   * Fix install command
   * Add remove()
@@ -160,13 +160,13 @@ ilff (0.4.1-1) fionec-unstable; urgency=medium
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 31 Aug 2022 12:47:28 +0200
 
-ilff (0.4.0-2) fionec-unstable; urgency=medium
+ilff (0.4.0-2) unstable; urgency=medium
 
   * New version 0.4.0-2 of the package
 
  -- Johannes Willkomm <j.willkomm@fionec.de>  Wed, 27 Jul 2022 13:57:34 +0200
 
-ilff (0.4.0-1) fionec-unstable; urgency=medium
+ilff (0.4.0-1) unstable; urgency=medium
 
   * Initial release: version 0.4.0
 
