@@ -1,2 +1,3 @@
 0001-aiofile-may-not-exist.patch
 0002-do-not-test-async-API.patch
+0003-C-tests-don-t-work.patch
