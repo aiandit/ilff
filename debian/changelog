@@ -1,3 +1,16 @@
+ilff (0.8.4-1) unstable; urgency=medium
+
+  * write(str) == append record, write(list) == append multiple records
+  * New cmdline tool write
+  * Implement -m ilff and generic ilff CLI tool
+  * Add seperate open method and use context manager to open, add open function
+  * Make pytest work
+  * export open function, adapt dependent modules
+  * Can use tox for testing
+  * Add async version using aiofile
+
+ -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Sat, 23 Nov 2024 17:05:35 +0100
+
 ilff (0.8.2-2) unstable; urgency=medium
 
   * Fix dependency of python pkg on libilff0
