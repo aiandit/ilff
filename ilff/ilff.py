@@ -2,7 +2,7 @@ import os, sys, shutil, io
 
 class ILFFError(BaseException):
     def __init__(self, s):
-        super().__init__(f'cILFF operation failed: {s}')
+        super().__init__(f'ILFF operation failed: {s}')
 
 class ILFFFile:
 
@@ -10,6 +10,7 @@ class ILFFFile:
     mode = 'r'
     encoding = 'utf8'
     _nlines = 0
+    idx = 0
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
@@ -294,6 +295,7 @@ class ILFFFile:
 
 def unlink(name):
     return ILFFFile.remove(name)
+
 
 py_open = open
 def open(name, mode='r', encoding='utf8', **kw):
