@@ -1,0 +1,25 @@
+From: Johannes Willkomm <johannes@johannes-willkomm.de>
+Date: Sat, 23 Nov 2024 20:00:34 +0100
+Subject: aiofile may not exist
+
+---
+ ilff/__init__.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/ilff/__init__.py b/ilff/__init__.py
+index 188c5c4..fc48ae1 100644
+--- a/ilff/__init__.py
++++ b/ilff/__init__.py
+@@ -3,7 +3,11 @@ __version__ = '0.8.4'
+ VERSION = __version__
+ 
+ from ilff.ilff import ILFFFile, unlink, open
+-from ilff.ailff import AILFFFile, open as async_open
++try:
++    import aiofiles
++    from ilff.ailff import AILFFFile, open as async_open
++except:
++    pass
+ from ilff.cilff import CILFFFile
+ from ilff.ilffgetlines import ILFFGetLines, CILFFGetLines
+ from . import reindex
