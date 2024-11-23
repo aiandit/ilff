@@ -12,6 +12,7 @@ class ILFFGetLines:
         # print('*** create: %s, append=%s' % (fname,append,))
         if var == 'py':
             self.ilff = ILFFFile(fname, mode=mode, encoding=encoding, check=check)
+            self.ilff.open()
             if not self.ilff.isILFF:
                 print('Index not found, opening normally: %s' % (fname,))
                 self.ilff.close()
