@@ -10,7 +10,7 @@ random.seed(time.time())
 
 fname = sys.argv[1]
 
-il = ilff.ILFFFile(fname)
+il = ilff.open(fname)
 
 lines = open(fname).read().split('\n')
 

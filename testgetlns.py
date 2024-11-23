@@ -8,7 +8,7 @@ import time
 
 fname = sys.argv[1]
 
-il = ilff.ILFFFile(fname)
+il = ilff.open(fname)
 
 start = 110
 ln = 25
