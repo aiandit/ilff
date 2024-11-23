@@ -8,33 +8,30 @@ def setargs(parser):
     parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
     parser.add_argument('infile', metavar='ILFF-File', type=str, help='input file name')
-    parser.add_argument('line', metavar='Number', type=int, nargs='+', help='line number')
-
-    parser.add_argument('--outfile', '-o', metavar='FILE', type=str, help='output file')
+    parser.add_argument('line', type=str, help='line to append')
 
 
 def run():
-    parser = argparse.ArgumentParser(description='Get line(s) from ILFF file.')
+    parser = argparse.ArgumentParser(description='Append line(s) to ILFF file.')
     setargs(parser)
     args = parser.parse_args()
-    exec(args)
 
-def exec(args):
     fname = args.infile
 
-    il = ilff.ILFFFile(fname)
+    il = ilff.ILFFFile(fname, 'a')
     if not il.isILFF:
         print(f'{fname} is not an ILFF-File')
         sys.exit(1)
 
-    if args.outfile:
-        of = open(args.outfile, 'w')
+    if args.line and args.line != '-':
+        of = open(args.line, 'r')
     else:
-        of = sys.stdout
+        of = sys.stdin
 
-    for ln in args.line:
-        l = il.getline(ln)
-        of.write(l)
+    with of:
+      line = of.read()
+
+    il.write(line)
 
 
 if __name__ == "__main__":

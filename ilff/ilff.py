@@ -2,7 +2,7 @@ import os, sys, shutil, io
 
 class ILFFError(BaseException):
     def __init__(self, s):
-        super().__init__(f'cILFF operation failed: {s}')
+        super().__init__(f'ILFF operation failed: {s}')
 
 class ILFFFile:
 
@@ -10,20 +10,22 @@ class ILFFFile:
     mode = 'r'
     encoding = 'utf8'
     _nlines = 0
+    idx = 0
     isILFF = True
     indexBytes = 8
     maxmtimediff = 1
     file = None
     idxfile = None
     sep = '\n'
-    bsep = b'\n'
+    umode = None
+    _check = False
 
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True, sep='\n'):
         self.fname = fname
+        self._check = check
         if encoding is not None:
             self.encoding = encoding
         self.sep = sep
-        self.bsep = self.sep.encode(self.encoding)
         self.mode = mode
         if mode == 'r':
             umode = 'r'
@@ -33,8 +35,10 @@ class ILFFFile:
             umode = 'w+'
         elif mode == 'a' or mode == 'a+':
             umode = 'a+'
+        else:
+            raise ValueError(f'Invalid open mode {mode}')
         umode += 'b'
-        self.file = open(self.fname, mode + 'b')
+        self.umode = umode
         if symlinks and os.path.islink(self.fname):
             self.realfname = os.readlink(self.fname)
             if not os.path.isabs(self.realfname):
@@ -50,21 +54,31 @@ class ILFFFile:
         self.idxfilen = os.path.join(base, '.ilff-index', notdir + '.idx')
         if not os.path.exists(self.idxfilen):
             self.isILFF = False
-        if self.isILFF or self.mode != 'r':
-            self.idxfile = open(self.idxfilen, umode)
-            self._nlines = self.get_nlines()
-            self.idx = self.readindex(self._nlines-1)[1]
-            if check:
-                self.check()
-            self.file.seek(self.idx)
-        else:
-            print(f'error: {fname} does not appear to be an indexed file')
 
     def __del__(self):
         self.close()
 
     def __str__(self):
         return f'ILFFFile("{self.fname}", nlines={self._nlines}, @{self.idx})'
+
+    def __enter__(self):
+        self.open()
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def open(self):
+        self.file = py_open(self.fname, self.mode + 'b')
+        if self.isILFF or self.mode != 'r':
+            self.idxfile = py_open(self.idxfilen, self.umode)
+            self._nlines = self.get_nlines()
+            self.idx = self.readindex(self._nlines-1)[1]
+            if self._check:
+                self.check()
+            self.file.seek(self.idx)
+        else:
+            print(f'error: {self.fname} does not appear to be an indexed file')
 
     def check(self):
         tdiff, stf = self.checkFileTimes()
@@ -143,22 +157,28 @@ class ILFFFile:
     def get_nlines(self):
         return self.nlines()
 
+    def writeLines(self, txt):
+        if isinstance(txt, list):
+            self.write(txt)
+        else:
+            lines = txt.split(self.sep)
+            if len(lines[-1]) == 0:
+                lines = lines[0:-1]
+            self.write([v + self.sep for v in lines])
+
     def write(self, txt):
-        lns = txt.split(self.sep)
-        if len(txt) >= len(self.sep) and txt[len(txt) - len(self.sep):] == self.sep:
-            lns = lns[0:-1]
-        [self.appendLine(ln) for ln in lns]
+        if isinstance(txt, list):
+            [self.appendLine(v) for v in txt]
+        else:
+            self.appendLine(txt)
 
     def appendLine(self, txt):
-        llen = len(txt)
-        if llen >= len(self.sep) and txt[llen - len(self.sep):] == self.sep:
-            txt = txt[0:-len(self.sep)]
         txtdata = txt.encode(self.encoding)
-        llen = len(txtdata) + len(self.bsep)
+        llen = len(txtdata)
         newidx = self.idx + llen
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
         self.idx = newidx
-        self.file.write(txtdata + self.bsep)
+        self.file.write(txtdata)
         self._nlines += 1
         tdiff, _ = self.checkFileTimes(False)
         if tdiff > self.maxmtimediff:
@@ -204,7 +224,7 @@ class ILFFFile:
         self.flush()
         shutil.copy(self.fname, self.fname + '.bak')
         self.truncate()
-        with open(self.fname + '.bak', 'r', encoding=self.encoding, newline=self.sep) as fcopy:
+        with py_open(self.fname + '.bak', 'r', encoding=self.encoding, newline=self.sep) as fcopy:
             self.fromfile(fcopy, empty=empty)
         os.remove(self.fname + '.bak')
 
@@ -275,3 +295,10 @@ class ILFFFile:
 
 def unlink(name):
     return ILFFFile.remove(name)
+
+
+py_open = open
+def open(name, mode='r', encoding='utf8', **kw):
+    ilff = ILFFFile(name, mode=mode, encoding=encoding, **kw)
+    ilff.open()
+    return ilff

@@ -8,10 +8,11 @@ class ILFFGetLines:
     file = None
     lines = None
 
-    def __init__(self, fname, mode='r', encoding='utf8', var='py'):
+    def __init__(self, fname, mode='r', encoding='utf8', var='py', check=False):
         # print('*** create: %s, append=%s' % (fname,append,))
         if var == 'py':
-            self.ilff = ILFFFile(fname, mode=mode, encoding=encoding)
+            self.ilff = ILFFFile(fname, mode=mode, encoding=encoding, check=check)
+            self.ilff.open()
             if not self.ilff.isILFF:
                 print('Index not found, opening normally: %s' % (fname,))
                 self.ilff.close()
@@ -19,7 +20,7 @@ class ILFFGetLines:
                 self.file = open(fname, mode=mode, encoding=encoding)
         else:
             try:
-                self.ilff = CILFFFile(fname, mode=mode, encoding=encoding)
+                self.ilff = CILFFFile(fname, mode=mode, encoding=encoding, check=check)
             except CILFFError as ex:
                 print('Index not found, opening normally: %s' % (fname,))
                 self.file = open(fname, mode=mode, encoding=encoding)

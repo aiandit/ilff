@@ -1,8 +1,8 @@
 PYTHON ?= python
 
-all: src-pkg wheel-pkg c-libs
+all: wheel-pkg c-libs
 
-src-pkg wheel-pkg:
+dist src-pkg wheel-pkg:
 	$(PYTHON) -m build .
 
 clean:
@@ -14,7 +14,10 @@ allclean:
 uninstall: c-uninstall
 	$(PYTHON) -m pip uninstall -y ilff
 
-install: wheel-pkg c-install
+install: c-install
+	$(PYTHON) -m pip install .
+
+install-pkg: wheel-pkg c-install
 	$(PYTHON) -m pip install -I $(lastword $(shell ls -lrt dist/*.whl))
 
 update: wheel-pkg c-install
@@ -97,3 +100,5 @@ check3: $(TESTF) $(TESTFlnk)
 	python3 testgetlns4.py /tmp/subdir/link2.csv
 	python3 testgetlns4.py /tmp/subdir/link3.csv
 	rm -rf /tmp/subdir
+
+.PHONY: dist src-pkg wheel-pkg clean check check2 check3 test
