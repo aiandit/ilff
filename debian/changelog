@@ -1,3 +1,11 @@
+ilff (24.11.1-1) unstable; urgency=medium
+
+  * Async API, use pyaio.AIOFile
+  * C tests don't work
+  * double open allowed
+
+ -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Tue, 26 Nov 2024 22:55:29 +0100
+
 ilff (0.8.4-1) unstable; urgency=medium
 
   * write(str) == append record, write(list) == append multiple records
