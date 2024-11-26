@@ -1,10 +1,14 @@
 import asyncio
 import os, sys, shutil, io
-from aiofile import AIOFile, LineReader
+
+#from aiofile import AIOFile, LineReader
+from pyaio.pyaio import AIOFile, LineReader
 
 from .ilff import ILFFError, unlink, ILFFFile
 
 class AILFFFile(ILFFFile):
+
+    file = None
 
     def __init__(self, fname, mode='r', **kw):
         super().__init__(fname, mode=mode, **kw)
@@ -16,12 +20,15 @@ class AILFFFile(ILFFFile):
         return f'AILFFFile("{self.fname}", nlines={self._nlines}, @{self.idx})'
 
     async def __aenter__(self):
-        return await self.open()
+        await self.open()
+        return self
 
     async def __aexit__(self, *args):
         await self.close()
 
     async def open(self):
+        if self.file is not None:
+            return
         self.file = AIOFile(self.fname, self.mode + 'b')
         await self.file.open()
         await self.file.fsync()
@@ -36,16 +43,15 @@ class AILFFFile(ILFFFile):
                 self.check()
         else:
             print(f'error: {self.fname} does not appear to be an indexed file')
-        return self
 
     async def fsync(self):
         await self.idxfile.fsync()
         await self.file.fsync()
 
     async def close(self):
-        await self.fsync()
         await self.idxfile.close()
         await self.file.close()
+        self.file = None
 
     async def readint(self, file, lnnum):
         if lnnum < 0:
