@@ -7,10 +7,10 @@ Subject: aiofile may not exist
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/ilff/__init__.py b/ilff/__init__.py
-index 188c5c4..fc48ae1 100644
+index 9ec9357..91402ec 100644
 --- a/ilff/__init__.py
 +++ b/ilff/__init__.py
-@@ -3,7 +3,11 @@ __version__ = '0.8.4'
+@@ -3,7 +3,11 @@ __version__ = '24.11.1'
  VERSION = __version__
  
  from ilff.ilff import ILFFFile, unlink, open
