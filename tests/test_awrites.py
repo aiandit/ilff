@@ -367,6 +367,8 @@ class TestILFFWrites6:
                 assert (l == self.lines[3])
             if i == 3:
                 assert (l == self.lines[4] + '\n')
+        await ilf.close()
+
 
 @pytest.mark.asyncio(loop_scope="class")
 class TestILFFWrites7:
@@ -426,6 +428,7 @@ class TestILFFWrites8:
         ilf = await ilff.async_open(self.fname)
         print(await ilf.getlinestxt(0, len(self.lines)))
         print(await ilf.getlines(0, len(self.lines)))
+        await ilf.close()
 
 
 @pytest.mark.asyncio(loop_scope="class")
@@ -480,6 +483,7 @@ class TestILFFWrites9:
         assert(txt == self.txt)
         lns = await ilf.getlines(0, len(self.lines))
         assert(lns == self.linesnl)
+        await ilf.close()
 
 
 @pytest.mark.asyncio(loop_scope="class")
@@ -515,6 +519,7 @@ class TestILFFWrites10:
         ilf = await ilff.async_open(self.fname, encoding=self.enc)
         print(await ilf.getlinestxt(0, len(self.lines)))
         print(await ilf.getlines(0, len(self.lines)))
+        await ilf.close()
 
 
 @pytest.mark.asyncio(loop_scope="class")
@@ -557,3 +562,4 @@ class TestILFFWrites11:
         ilf = await ilff.async_open(self.fname, encoding=self.enc)
         print('all text', await ilf.getlinestxt(0, len(self.lines)))
         print('all records', await ilf.getlines(0, len(self.lines)))
+        await ilf.close()
