@@ -17,7 +17,7 @@ uninstall: c-uninstall
 install: c-install
 	$(PYTHON) -m pip install .
 
-install-pkg: wheel-pkg c-install
+install-pkg: wheel-pkg
 	$(PYTHON) -m pip install -I $(lastword $(shell ls -lrt dist/*.whl))
 
 update: wheel-pkg c-install
