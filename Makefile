@@ -51,7 +51,7 @@ check: check1 check2 check3
 	rm -rf .ilff-index
 
 check1:
-	./tests/runtests.sh
+	pytest
 
 SHELL = bash
 export LANG = C

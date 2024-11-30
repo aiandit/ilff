@@ -2,7 +2,7 @@ import asyncio
 import os, sys, shutil, io
 
 #from aiofile import AIOFile, LineReader
-from pyaio.pyaio import AIOFile, LineReader
+from pyaio import AIOFile, LineReader
 
 from .ilff import ILFFError, unlink, ILFFFile
 
@@ -31,11 +31,9 @@ class AILFFFile(ILFFFile):
             return
         self.file = AIOFile(self.fname, self.mode + 'b')
         await self.file.open()
-        await self.file.fsync()
         if self.isILFF or self.mode != 'r':
             self.idxfile = AIOFile(self.idxfilen, self.umode)
             await self.idxfile.open()
-            await self.idxfile.fsync()
             self._nlines = int(os.path.getsize(self.idxfilen) / self.indexBytes)
             self.idx = (await self.readindex(self._nlines-1))[1]
             #print(f'lines: {self._nlines}, index: {self.idx}')
@@ -143,7 +141,6 @@ class AILFFFile(ILFFFile):
         self.idx = 0
 
     async def compact(self, empty=''):
-        await self.fsync()
         shutil.copy(self.fname, self.fname + '.bak')
         await self.truncate()
         async with AIOFile(self.fname + '.bak', 'r', encoding=self.encoding) as fcopy:
