@@ -1,18 +1,18 @@
 From: Johannes Willkomm <johannes@johannes-willkomm.de>
-Date: Tue, 26 Nov 2024 22:57:25 +0100
+Date: Sat, 30 Nov 2024 13:49:29 +0100
 Subject: Do not test async
 
 ---
- tests/test_awrites.py | 565 --------------------------------------------------
- 1 file changed, 565 deletions(-)
+ tests/test_awrites.py | 558 --------------------------------------------------
+ 1 file changed, 558 deletions(-)
  delete mode 100644 tests/test_awrites.py
 
 diff --git a/tests/test_awrites.py b/tests/test_awrites.py
 deleted file mode 100644
-index a530eef..0000000
+index 263511a..0000000
 --- a/tests/test_awrites.py
 +++ /dev/null
-@@ -1,565 +0,0 @@
+@@ -1,558 +0,0 @@
 -import asyncio
 -import pytest
 -
@@ -25,7 +25,11 @@ index a530eef..0000000
 -
 -import ilff
 -
--@pytest.mark.asyncio(loop_scope="class")
+-
+-pytestmark = pytest.mark.asyncio(loop_scope="module")
+-loop: asyncio.AbstractEventLoop
+-
+-
 -class TestStringMethods:
 -
 -    async def test_upper(self):
@@ -40,8 +44,7 @@ index a530eef..0000000
 -        assert s.split() == ['hello', 'world']
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites1:
+-class TestILFFAWrites01:
 -
 -    lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -119,8 +122,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites2:
+-class TestILFFAWrites02:
 -
 -    lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -178,8 +180,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites3:
+-class TestILFFAWrites03:
 -
 -    lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -226,8 +227,7 @@ index a530eef..0000000
 -            assert (lns == ''.join(self.linesnl))
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites4:
+-class TestILFFAWrites04:
 -
 -    lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -276,8 +276,7 @@ index a530eef..0000000
 -            assert (lns == '\n'.join(self.lines))
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites5:
+-class TestILFFAWrites05:
 -
 -    lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -312,8 +311,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites6:
+-class TestILFFAWrites06:
 -
 -    lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -385,8 +383,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites7:
+-class TestILFFAWrites07:
 -
 -    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
 -    linesnl = [l + '\n' for l in lines]
@@ -412,8 +409,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites8:
+-class TestILFFAWrites08:
 -
 -    sep = 'ü'
 -    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -446,8 +442,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites9:
+-class TestILFFAWrites09:
 -
 -    sep = 'xyz'
 -    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -501,8 +496,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites10:
+-class TestILFFAWrites10:
 -
 -    sep = 'äöü'
 -    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -537,8 +531,7 @@ index a530eef..0000000
 -        await ilf.close()
 -
 -
--@pytest.mark.asyncio(loop_scope="class")
--class TestILFFWrites11:
+-class TestILFFAWrites11:
 -
 -    sep = '\n'
 -    data = [dict(a=1,b=2,c=3),
