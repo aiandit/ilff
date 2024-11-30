@@ -10,7 +10,11 @@ sys.path.append('..')
 
 import ilff
 
-@pytest.mark.asyncio(loop_scope="class")
+
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+loop: asyncio.AbstractEventLoop
+
+
 class TestStringMethods:
 
     async def test_upper(self):
@@ -25,8 +29,7 @@ class TestStringMethods:
         assert s.split() == ['hello', 'world']
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites1:
+class TestILFFAWrites01:
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -104,8 +107,7 @@ class TestILFFWrites1:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites2:
+class TestILFFAWrites02:
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -163,8 +165,7 @@ class TestILFFWrites2:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites3:
+class TestILFFAWrites03:
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -211,8 +212,7 @@ class TestILFFWrites3:
             assert (lns == ''.join(self.linesnl))
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites4:
+class TestILFFAWrites04:
 
     lines = ['aaa', 'bbbb b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -261,8 +261,7 @@ class TestILFFWrites4:
             assert (lns == '\n'.join(self.lines))
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites5:
+class TestILFFAWrites05:
 
     lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -297,8 +296,7 @@ class TestILFFWrites5:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites6:
+class TestILFFAWrites06:
 
     lines = ['aaa4 5 d', 'bbbb b b', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -370,8 +368,7 @@ class TestILFFWrites6:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites7:
+class TestILFFAWrites07:
 
     lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
     linesnl = [l + '\n' for l in lines]
@@ -397,8 +394,7 @@ class TestILFFWrites7:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites8:
+class TestILFFAWrites08:
 
     sep = 'ü'
     lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -431,8 +427,7 @@ class TestILFFWrites8:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites9:
+class TestILFFAWrites09:
 
     sep = 'xyz'
     lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -486,8 +481,7 @@ class TestILFFWrites9:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites10:
+class TestILFFAWrites10:
 
     sep = 'äöü'
     lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
@@ -522,8 +516,7 @@ class TestILFFWrites10:
         await ilf.close()
 
 
-@pytest.mark.asyncio(loop_scope="class")
-class TestILFFWrites11:
+class TestILFFAWrites11:
 
     sep = '\n'
     data = [dict(a=1,b=2,c=3),
