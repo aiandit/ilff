@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-
+import pytest_asyncio
 import os
 import sys
 import uuid
@@ -9,6 +9,13 @@ import json
 sys.path.append('..')
 
 import ilff
+from pyaio import aio as aiomodule
+
+
+@pytest_asyncio.fixture(loop_scope="module", scope="module")
+async def per_module_fixture():
+    yield True
+    await aiomodule.release_globals()
 
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
@@ -17,7 +24,7 @@ loop: asyncio.AbstractEventLoop
 
 class TestStringMethods:
 
-    async def test_upper(self):
+    async def test_upper(self, per_module_fixture):
         assert 'foo'.upper() == 'FOO'
 
     async def test_isupper(self):
