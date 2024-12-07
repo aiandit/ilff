@@ -1,5 +1,5 @@
 From: Johannes Willkomm <johannes@johannes-willkomm.de>
-Date: Sat, 7 Dec 2024 11:38:15 +0100
+Date: Sat, 7 Dec 2024 11:48:25 +0100
 Subject: Do not test async
 
 ---
@@ -9,7 +9,7 @@ Subject: Do not test async
 
 diff --git a/tests/test_awrites.py b/tests/test_awrites.py
 deleted file mode 100644
-index f3e68ef..0000000
+index 3024998..0000000
 --- a/tests/test_awrites.py
 +++ /dev/null
 @@ -1,565 +0,0 @@
@@ -24,7 +24,7 @@ index f3e68ef..0000000
 -sys.path.append('..')
 -
 -import ilff
--from pyaio import aio as aiomodule
+-from aiaio import aio as aiomodule
 -
 -
 -@pytest_asyncio.fixture(loop_scope="module", scope="module")
