@@ -9,7 +9,7 @@ import json
 sys.path.append('..')
 
 import ilff
-from pyaio import aio as aiomodule
+from aiaio import aio as aiomodule
 
 
 @pytest_asyncio.fixture(loop_scope="module", scope="module")

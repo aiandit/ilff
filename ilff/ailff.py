@@ -2,7 +2,7 @@ import asyncio
 import os, sys, shutil, io
 
 #from aiofile import AIOFile, LineReader
-from pyaio import AIOFile, LineReader
+from aiaio import AIOFile, LineReader
 
 from .ilff import ILFFError, unlink, ILFFFile
 
