@@ -97,9 +97,8 @@ setup(
         'Development Status :: 4 - Beta',
 
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: File Tools',
-        'Topic :: Software Development :: Stream',
-        'Topic :: Software Development :: Indexing',
+        'Topic :: File Format',
+        'Topic :: Topic :: Internet :: WWW/HTTP :: Indexing/Search',
 
         'License :: OSI Approved :: BSD License',
 
