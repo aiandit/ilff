@@ -98,7 +98,7 @@ setup(
 
         'Intended Audience :: Developers',
         'Topic :: File Formats',
-        'Topic :: Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
 
         'License :: OSI Approved :: BSD License',
 
