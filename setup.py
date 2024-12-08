@@ -101,7 +101,7 @@ setup(
         'Topic :: Software Development :: Stream',
         'Topic :: Software Development :: Indexing',
 
-        'License :: BSD-3-Clause',
+        'License :: OSI Approved :: BSD License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate you support Python 3. These classifiers are *not*
