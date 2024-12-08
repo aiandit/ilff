@@ -56,20 +56,22 @@ class AILFFFile(ILFFFile):
             return (0, 0)
         idx1 = 0
         if lnnum > 0:
-            idxdata = await file.read(self.indexBytes, offset=(lnnum-1)*self.indexBytes)
-            if len(idxdata) != self.indexBytes:
-                raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d. Out of range?' % (lnnum, ))
-                idx1 = 2**30
+            offs = (lnnum-1)*self.indexBytes
+            idxdata = await file.read(self.indexBytes*2, offset=offs)
+            if len(idxdata) != self.indexBytes*2:
+                raise ILFFError('ILFF: Error: Failed to read from index entry %d @ %d. Out of range?' %
+                                (lnnum, offs))
             else:
-                idx1 = int(0).from_bytes(idxdata, 'little')
+                idx1 = int(0).from_bytes(idxdata[0:self.indexBytes], 'little')
+                idx2 = int(0).from_bytes(idxdata[self.indexBytes:], 'little')
         else:
             assert(lnnum == 0)
-        idxdata = await file.read(self.indexBytes, offset=lnnum*self.indexBytes)
-        if len(idxdata) != self.indexBytes:
-            raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d. Out of range?' % (lnnum, ))
-            idx2 = 2**30
-        else:
-            idx2 = int(0).from_bytes(idxdata, 'little')
+            idxdata = await file.read(self.indexBytes)
+            if len(idxdata) != self.indexBytes:
+                raise ILFFError('ILFF: Error: Failed to read from index entry %d @ %d. Out of range?' %
+                                (lnnum, 0))
+            else:
+                idx2 = int(0).from_bytes(idxdata, 'little')
 
         return (idx1, idx2)
 
