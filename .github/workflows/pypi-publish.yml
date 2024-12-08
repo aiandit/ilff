@@ -29,6 +29,7 @@ jobs:
 
   pypi-publish:
     runs-on: ubuntu-latest
+    environment: deploy-pypi
     needs:
       - release-build
     permissions:
