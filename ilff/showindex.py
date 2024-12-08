@@ -7,6 +7,7 @@ def run():
     args = parseargs('Show index of ILFF file.')
     for fname in args.infiles:
         il = ilff.ILFFFile(fname)
+        il.open()
         il.dumpindex()
 
 

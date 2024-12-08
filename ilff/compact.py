@@ -8,6 +8,7 @@ def run():
     empty = ''
     for fname in args.infiles:
         il = ilff.ILFFFile(fname, mode='r+')
+        il.open()
         il.compact(empty=empty)
         il.close()
 

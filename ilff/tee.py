@@ -29,6 +29,7 @@ def run():
     ofiles = []
     for i in args.outfile:
         il = ilff.ILFFFile(i, mode)
+        il.open()
         ofiles.append(il)
 
     infile = sys.stdin

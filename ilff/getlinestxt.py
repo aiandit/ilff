@@ -12,6 +12,7 @@ def run():
     fname = args.infile
 
     il = ilff.ILFFFile(fname)
+    il.open()
 
     lns = il.getlinestxt(b, n)
 

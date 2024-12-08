@@ -31,6 +31,7 @@ def run():
         return
     else:
         il = ilff.ILFFFile(ofile, 'w')
+        il.open()
         ofile = il
 
     infiles = args.infile

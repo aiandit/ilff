@@ -122,27 +122,25 @@ class ILFFFile:
         idx1 = 0
         if lnnum > 0:
             file.seek((lnnum-1)*self.indexBytes)
-            idxdata = file.read(self.indexBytes)
-            if len(idxdata) != self.indexBytes:
-                raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
-                                (lnnum, file.seek(0, os.SEEK_END)/self.indexBytes))
-                idx1 = 2**30
+            idxdata = file.read(self.indexBytes*2)
+            if len(idxdata) != self.indexBytes*2:
+                raise ILFFError('ILFF: Error: Failed to read from index entry %d @ %d. Out of range?' %
+                                (lnnum, offs))
             else:
-                idx1 = int(0).from_bytes(idxdata, 'little')
+                idx1 = int(0).from_bytes(idxdata[0:self.indexBytes], 'little')
+                idx2 = int(0).from_bytes(idxdata[self.indexBytes:], 'little')
         else:
             assert(lnnum == 0)
-            file.seek(lnnum*self.indexBytes)
-        idxdata = file.read(self.indexBytes)
-        if len(idxdata) != self.indexBytes:
-            raise ILFFError('ILFF: Error: Failed to seek in index/length file to %d of %d. Out of range?' %
-                            (lnnum, file.seek(0, os.SEEK_END)/4))
-            idx2 = 2**30
-        else:
-            idx2 = int(0).from_bytes(idxdata, 'little')
+            file.seek(0)
+            idxdata = file.read(self.indexBytes)
+            if len(idxdata) != self.indexBytes:
+                raise ILFFError('ILFF: Error: Failed to read from index entry %d @ %d. Out of range?' %
+                                (lnnum, 0))
+            else:
+                idx2 = int(0).from_bytes(idxdata, 'little')
 
         if self.mode != 'r':
             file.seek(0, os.SEEK_END)
-
         return (idx1, idx2)
 
     def readindex(self, lnnum):
