@@ -96,12 +96,12 @@ setup(
         #   5 - Production/Stable
         'Development Status :: 4 - Beta',
 
-        # Indicate who your project is intended for
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: File Tools',
+        'Topic :: Software Development :: Stream',
+        'Topic :: Software Development :: Indexing',
 
-        # Pick your license as you wish
-        'License :: Proprietary',
+        'License :: BSD',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate you support Python 3. These classifiers are *not*
@@ -111,6 +111,10 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3 :: Only',
     ],
 
