@@ -18,6 +18,7 @@ def setargs(parser):
 def exec(args):
     for fname in args.infiles:
         il = ilff.ILFFFile(fname)
+        il.open()
         if il.isILFF:
             print(fname, il.get_nlines())
         else:

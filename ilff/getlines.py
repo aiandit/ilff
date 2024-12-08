@@ -67,6 +67,7 @@ def run():
     fname = args.infile
 
     il = ilff.ILFFFile(fname, sep=args.sep)
+    il.open()
 
     lns = il.getlines(b, n)
 

@@ -23,6 +23,7 @@ def exec(args):
     fname = args.infile
 
     il = ilff.ILFFFile(fname)
+    il.open()
     if not il.isILFF:
         print(f'{fname} is not an ILFF-File')
         sys.exit(1)

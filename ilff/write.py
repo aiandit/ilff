@@ -19,6 +19,7 @@ def run():
     fname = args.infile
 
     il = ilff.ILFFFile(fname, 'a')
+    il.open()
     if not il.isILFF:
         print(f'{fname} is not an ILFF-File')
         sys.exit(1)
