@@ -48,9 +48,10 @@ class AILFFFile(ILFFFile):
         await self.file.fsync()
 
     async def close(self):
-        await self.idxfile.close()
-        await self.file.close()
-        self.file = None
+        if self.idxfile:
+            await self.idxfile.close()
+        if self.file:
+            await self.file.close()
 
     async def readint(self, file, lnnum):
         if lnnum < 0:
