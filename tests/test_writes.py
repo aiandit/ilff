@@ -508,6 +508,97 @@ class TestILFFWrites10(unittest.TestCase):
 
 class TestILFFWrites11(unittest.TestCase):
 
+    sep = 'äöü'
+    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
+    linesnl = [l + 'äöü' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'latin1'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        ilf = ilff.open(self.fname, 'wb')
+        for i in range(len(self.lines)):
+            ilf.write(self.linesnl[i].encode(self.enc))
+        ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        ilf.close()
+
+    def test_02_get1(self):
+        ilf = ilff.open(self.fname, mode='rb')
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = ilf.getline(i)
+            assert l.decode(self.enc) == self.linesnl[i]
+        ilf.close()
+
+
+class TestILFFWrites11a(unittest.TestCase):
+
+    sep = 'äöü'
+    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
+    linesnl = [l + 'äöü' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'latin1'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        ilf = ilff.open(self.fname, 'w', encoding=self.enc)
+        for i in range(len(self.lines)):
+            ilf.write(self.linesnl[i])
+        ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        ilf.close()
+
+    def test_02_get1(self):
+        ilf = ilff.open(self.fname, mode='rb')
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = ilf.getline(i)
+            assert l.decode(self.enc) == self.linesnl[i]
+        ilf.close()
+
+
+class TestILFFWrites11b(unittest.TestCase):
+
+    sep = 'äöü'
+    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
+    linesnl = [l + 'äöü' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'latin1'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        ilf = ilff.open(self.fname, 'wb')
+        for i in range(len(self.lines)):
+            ilf.write(self.linesnl[i].encode(self.enc))
+        ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        ilf.close()
+
+    def test_02_get1(self):
+        ilf = ilff.open(self.fname, mode='r', encoding=self.enc)
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = ilf.getline(i)
+            assert l == self.linesnl[i]
+        ilf.close()
+
+
+
+class TestILFFWrites12(unittest.TestCase):
+
     sep = '\n'
     data = [dict(a=1,b=2,c=3),
             dict(d=1,e=2,f=3),
@@ -545,6 +636,49 @@ class TestILFFWrites11(unittest.TestCase):
         ilf = ilff.open(self.fname, encoding=self.enc)
         print('all text', ilf.getlinestxt(0, len(self.lines)))
         print('all records', ilf.getlines(0, len(self.lines)))
+
+
+class TestILFFWrites13(unittest.TestCase):
+
+    sep = '\n'
+    data = [dict(a='Über',b=2,c=3),
+            dict(d=1,e=2,f=3),
+            dict(g=11,h=12,i=13)]
+    lines = [json.dumps(v, indent=None) for v in data]
+    linesnl = [l + '\n' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'latin1'
+
+    @classmethod
+    def tearDownClass(self):
+        ilff.unlink(self.fname)
+
+    def test_01_write(self):
+        print(self.lines)
+        print(self.linesnl)
+        ilf = ilff.open(self.fname, 'w', sep=self.sep, encoding=self.enc)
+        [ilf.write(record) for record in self.lines]
+        ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        ilf.close()
+
+    def test_02_get1(self):
+        ilf = ilff.open(self.fname, encoding=self.enc)
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = ilf.getline(i)
+            assert l == self.lines[i]
+            d = json.loads(l)
+            assert d == self.data[i]
+        ilf.close()
+
+    def test_03_get2(self):
+        ilf = ilff.open(self.fname, mode='rb')
+        print('all binary text', ilf.getlinestxt(0, len(self.lines)))
+        print('all binary records', ilf.getlines(0, len(self.lines)))
+        jdata = json.loads(ilf.getline(0).decode(self.enc))
+        assert jdata['a'] == 'Über'
 
 
 if __name__ == '__main__':

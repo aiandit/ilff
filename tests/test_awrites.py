@@ -525,6 +525,36 @@ class TestILFFAWrites10:
 
 class TestILFFAWrites11:
 
+    sep = 'äöü'
+    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
+    linesnl = [l + 'äöü' for l in lines]
+    txt = ''.join(linesnl)
+    fname = str(uuid.uuid4()) + '.ilff'
+    enc = 'latin1'
+
+    @classmethod
+    def teardown_class(self):
+        ilff.unlink(self.fname)
+
+    async def test_01_write(self):
+        ilf = await ilff.async_open(self.fname, 'wb')
+        for i in range(len(self.lines)):
+            await ilf.write(self.linesnl[i].encode(self.enc))
+        await ilf.dumpindex()
+        assert ilf.nlines() == len(self.lines)
+        await ilf.close()
+
+    async def test_02_get1(self):
+        ilf = await ilff.async_open(self.fname, mode='rb')
+        assert ilf.nlines() == len(self.lines)
+        for i in range(len(self.lines)):
+            l = await ilf.getline(i)
+            assert l.decode(self.enc) == self.linesnl[i]
+        await ilf.close()
+
+
+class TestILFFAWrites12:
+
     sep = '\n'
     data = [dict(a=1,b=2,c=3),
             dict(d=1,e=2,f=3),
