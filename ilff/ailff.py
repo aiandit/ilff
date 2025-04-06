@@ -9,6 +9,7 @@ from .ilff import ILFFError, unlink, ILFFFile
 class AILFFFile(ILFFFile):
 
     file = None
+    idxfile = None
 
     def __init__(self, fname, mode='r', **kw):
         super().__init__(fname, mode=mode, **kw)
