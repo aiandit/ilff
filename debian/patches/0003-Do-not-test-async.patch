@@ -1,18 +1,18 @@
 From: Johannes Willkomm <johannes@johannes-willkomm.de>
-Date: Sat, 7 Dec 2024 11:48:25 +0100
+Date: Sun, 6 Apr 2025 16:10:39 +0200
 Subject: Do not test async
 
 ---
- tests/test_awrites.py | 565 --------------------------------------------------
- 1 file changed, 565 deletions(-)
+ tests/test_awrites.py | 595 --------------------------------------------------
+ 1 file changed, 595 deletions(-)
  delete mode 100644 tests/test_awrites.py
 
 diff --git a/tests/test_awrites.py b/tests/test_awrites.py
 deleted file mode 100644
-index 3024998..0000000
+index fb7d736..0000000
 --- a/tests/test_awrites.py
 +++ /dev/null
-@@ -1,565 +0,0 @@
+@@ -1,595 +0,0 @@
 -import asyncio
 -import pytest
 -import pytest_asyncio
@@ -539,6 +539,36 @@ index 3024998..0000000
 -
 -
 -class TestILFFAWrites11:
+-
+-    sep = 'äöü'
+-    lines = ['aaa4 5 d', '', 'bbbb b b', '   ', 'ccccc cccc cc c']
+-    linesnl = [l + 'äöü' for l in lines]
+-    txt = ''.join(linesnl)
+-    fname = str(uuid.uuid4()) + '.ilff'
+-    enc = 'latin1'
+-
+-    @classmethod
+-    def teardown_class(self):
+-        ilff.unlink(self.fname)
+-
+-    async def test_01_write(self):
+-        ilf = await ilff.async_open(self.fname, 'wb')
+-        for i in range(len(self.lines)):
+-            await ilf.write(self.linesnl[i].encode(self.enc))
+-        await ilf.dumpindex()
+-        assert ilf.nlines() == len(self.lines)
+-        await ilf.close()
+-
+-    async def test_02_get1(self):
+-        ilf = await ilff.async_open(self.fname, mode='rb')
+-        assert ilf.nlines() == len(self.lines)
+-        for i in range(len(self.lines)):
+-            l = await ilf.getline(i)
+-            assert l.decode(self.enc) == self.linesnl[i]
+-        await ilf.close()
+-
+-
+-class TestILFFAWrites12:
 -
 -    sep = '\n'
 -    data = [dict(a=1,b=2,c=3),
