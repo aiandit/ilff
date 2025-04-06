@@ -1,3 +1,9 @@
+ilff (25.4-1) unstable; urgency=medium
+
+  * Add support for binary file (read/write bytes) to ILFFFile and AILFFFile
+
+ -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Sun, 06 Apr 2025 16:06:51 +0200
+
 ilff (24.12.8-1) unstable; urgency=medium
 
   * pyaio -> aiaio dependency renamed
