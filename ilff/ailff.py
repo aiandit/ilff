@@ -102,7 +102,13 @@ class AILFFFile(ILFFFile):
             await self.appendLine(txt)
 
     async def appendLine(self, txt):
-        txtdata = txt.encode(self.encoding)
+        txtdata = txt.encode(self.encoding) if self.encoding else txt
+        if not self.encoding:
+            if not (isinstance(txt, bytes) or isinstance(txt, bytearray)):
+                raise ILFFError('Date to write must be bytes')
+        else:
+            if not isinstance(txt, str):
+                raise ILFFError('Date to write must be str')
         llen = len(txtdata)
         curlns = self._nlines
         curidx = self.idx
@@ -157,7 +163,7 @@ class AILFFFile(ILFFFile):
         if len == 0:
             return ""
         ln = await self.file.read(len, offset=idx)
-        return ln.decode(self.encoding)
+        return self._gettxt(ln)
 
     async def getlines(self, start, nlines):
         (idx, idx2) = await self.readindex(start)
@@ -166,7 +172,7 @@ class AILFFFile(ILFFFile):
         for k in range(nlines):
             (idx, idx2) = await self.readindex(start + k)
             len = idx2 - idx
-            ln = (await self.file.read(len, offset=idx)).decode(self.encoding)
+            ln = self._gettxt(await self.file.read(len, offset=idx))
             res.append(ln)
         return res
 
@@ -178,7 +184,7 @@ class AILFFFile(ILFFFile):
         ramount = idxe2 - idxs
         ln = b''
         ln = await self.file.read(ramount, offset=idxs)
-        return ln.decode(self.encoding)
+        return self._gettxt(ln)
 
     async def dumpindex(self):
         print('Number of Lines: ', self.get_nlines())

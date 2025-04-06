@@ -23,9 +23,14 @@ class ILFFFile:
     def __init__(self, fname, mode='r', encoding='utf8', symlinks=True, check=True, sep='\n'):
         self.fname = fname
         self._check = check
-        if encoding is not None:
-            self.encoding = encoding
+        self.encoding = encoding
         self.sep = sep
+        if 'b' in mode:
+            self.encoding = None
+            mode = mode.replace('b', '')
+        else:
+            if self.encoding is None:
+                self.encoding = 'utf8'
         self.mode = mode
         if mode == 'r':
             umode = 'r'
@@ -171,7 +176,7 @@ class ILFFFile:
             self.appendLine(txt)
 
     def appendLine(self, txt):
-        txtdata = txt.encode(self.encoding)
+        txtdata = txt.encode(self.encoding) if self.encoding else txt
         llen = len(txtdata)
         newidx = self.idx + llen
         self.idxfile.write(newidx.to_bytes(self.indexBytes, 'little'))
@@ -226,6 +231,11 @@ class ILFFFile:
             self.fromfile(fcopy, empty=empty)
         os.remove(self.fname + '.bak')
 
+    def _gettxt(self, txt):
+        if self.encoding:
+            txt = txt.decode(self.encoding)
+        return txt
+
     def getline(self, lnnum):
         (idx, idx2) = self.readindex(lnnum)
         len = idx2 - idx
@@ -235,7 +245,7 @@ class ILFFFile:
         ln = self.file.read(len)
         if self.mode != 'r':
             self.file.seek(self.idx)
-        return ln.decode(self.encoding)
+        return self._gettxt(ln)
 
     def getlines(self, start, nlines):
         (idx, idx2) = self.readindex(start)
@@ -245,7 +255,7 @@ class ILFFFile:
         for k in range(nlines):
             (idx, idx2) = self.readindex(start + k)
             len = idx2 - idx
-            ln = self.file.read(len).decode(self.encoding)
+            ln = self._gettxt(self.file.read(len))
             res.append(ln)
         if self.mode != 'r':
             self.file.seek(self.idx)
@@ -262,7 +272,7 @@ class ILFFFile:
         ln = self.file.read(ramount)
         if self.mode != 'r':
             self.file.seek(self.idx)
-        return ln.decode(self.encoding)
+        return self._gettxt(ln)
 
     def getindex(self):
         for i in range(3):
