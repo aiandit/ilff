@@ -5,7 +5,7 @@ import argparse
 
 
 def parseargs(help):
-    parser = argparse.ArgumentParser(description='Get line range from ILFF file.')
+    parser = argparse.ArgumentParser(description=help)
     setargs(parser)
     return parser.parse_args()
 
@@ -20,7 +20,7 @@ def exec(args):
         il = ilff.ILFFFile(fname)
         il.open()
         if il.isILFF:
-            print(fname, il.get_nlines())
+            print(il.get_nlines(), fname)
         else:
             print(fname, "not an ILFF file")
 
