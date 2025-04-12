@@ -31,10 +31,12 @@ test_out1_1() {
     assertEquals "$?" "0"
 
     sz=$(wc -c --total=only out1.txt)
-    assertEquals "$sz" "20"
-
-    ilff-nlines out1.txt
     assertEquals "0" "$?"
+    assertEquals "20" "$sz"
+
+    nl=$(ilff-nlines out1.txt)
+    assertEquals "0" "$?"
+    assertEquals "4 out1.txt" "$nl"
 
     t1=$(ilff-getline out1.txt 0)
     assertEquals "0" "$?"
