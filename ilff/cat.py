@@ -11,6 +11,7 @@ def parseargs(cmdargs=None):
     parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
 
     parser.add_argument('--verbose', type=int, nargs='?', const=1, help='Verbose output')
+    parser.add_argument('--append', '-a', action='store_true', help='Append mode')
     parser.add_argument('--outfile', '-o', type=str, help='Output ILFF file')
 
     parser.add_argument('infile', type=str, nargs='*', help='Input files')
@@ -30,7 +31,8 @@ def run():
         print('Output file must be set')
         return
     else:
-        il = ilff.ILFFFile(ofile, 'w')
+        mode = 'a' if args.append else 'w'
+        il = ilff.ILFFFile(ofile, mode)
         il.open()
         ofile = il
 
@@ -40,7 +42,7 @@ def run():
 
     for i in infiles:
         try:
-            f = open(i, 'r') if isinstance(i, str) else i
+            f = open(i, 'r') if i != '-' else sys.stdin
         except FileNotFoundError as ex:
             print(f'Failed to open input: {ex}')
             break

@@ -49,6 +49,13 @@ $(LIB): $(objects)
 ilff.o: ilff.h
 
 install: $(LIB) $(DLIB)
+	if [ -w $(LIBDIR) ] && [ -w $(INCDIR) ]; then \
+		$(MAKE) do-install; \
+	else \
+	  echo "\n*** \nNo write permissions for system directories, not installing ilff C library\n***\n"; \
+	fi
+
+do-install: $(LIB) $(DLIB)
 	install -d $(LIBDIR)
 	install -d $(INCDIR)
 	install -m 644 ilff.h $(INCDIR)

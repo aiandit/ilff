@@ -1,4 +1,4 @@
 build
 pytest
-aiofile
 pytest-asyncio
+../aiaio/aiaio.zip
