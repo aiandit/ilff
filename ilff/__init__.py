@@ -4,7 +4,7 @@ VERSION = __version__
 
 from ilff.ilff import ILFFFile, unlink, open
 try:
-    import aiofiles
+    import aiaio
     from ilff.ailff import AILFFFile, open as async_open
 except:
     pass
