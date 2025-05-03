@@ -68,7 +68,7 @@ class AILFFFile(ILFFFile):
                 idx2 = int(0).from_bytes(idxdata[self.indexBytes:], 'little')
         else:
             assert(lnnum == 0)
-            idxdata = await file.read(self.indexBytes)
+            idxdata = await file.read(self.indexBytes, offset=0)
             if len(idxdata) != self.indexBytes:
                 raise ILFFError('ILFF: Error: Failed to read from index entry %d @ %d. Out of range?' %
                                 (lnnum, 0))
