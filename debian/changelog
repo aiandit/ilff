@@ -1,3 +1,13 @@
+ilff (25.5-1) unstable; urgency=medium
+
+  * Tests for cli tools
+  * Add option append to cat tool
+  * Clean up error messages
+  * nlines: report number first
+  * When aiaio is found, provide ailff
+
+ -- Johannes Willkomm <johannes.willkomm@googlemail.com>  Sat, 03 May 2025 10:52:15 +0200
+
 ilff (25.4-1) unstable; urgency=medium
 
   * Add support for binary file (read/write bytes) to ILFFFile and AILFFFile
