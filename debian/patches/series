@@ -1,2 +1,3 @@
 0003-C-tests-don-t-work.patch
 0003-Do-not-test-async.patch
+0003-Install-try-to-create-LIBDIR-INCDIR.patch
